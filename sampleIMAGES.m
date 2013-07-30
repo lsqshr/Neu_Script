@@ -23,8 +23,8 @@ patches = zeros(patchsize*patchsize, numpatches);
 
 height = size(IMAGES, 1);
 width = size(IMAGES, 2);
-iheight = height - 7;
-iwidth = width - 7;
+iheight = height - patchsize + 1;
+iwidth = width - patchsize + 1;
 indices = randi(10, numpatches,1);
 for i = 1 : numpatches
 

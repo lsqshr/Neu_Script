@@ -14,9 +14,10 @@
 %  allow your sparse autoencoder to get good filters; you do not need to 
 %  change the parameters below.
 clear all;
-visibleSize = 8*8;   % number of input units 
+patchsize = 8
+visibleSize = patchsize * patchsize;   % number of input units 
 hiddenSize = 25;     % number of hidden units 
-sparsityParam = 0.01;   % desired average activation of the hidden units.
+sparsityParam = 0.05;   % desired average activation of the hidden units.
                      % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		     %  in the lecture notes). 
 lambda = 0.0001;     % weight decay parameter       
@@ -31,8 +32,8 @@ beta = 3;            % weight of sparsity penalty term
 %  After implementing sampleIMAGES, the display_network command should
 %  display a random sample of 200 patches from the dataset
 
-patches = sampleIMAGES('IMAGES.mat', ninstance, 8);
-display_network(patches(:,randi(size(patches,2),200,1)),8);
+patches = sampleIMAGES('IMAGES.mat', ninstance, patchsize);
+display_network(patches(:,randi(size(patches,2),200,1)),patchsize);
 
 
 %  Obtain random parameters theta
@@ -70,32 +71,21 @@ theta = initializeParameters(hiddenSize, visibleSize);
 
 %%======================================================================
 %% STEP 3: Gradient Checking
-%
-% Hint: If you are debugging your code, performing gradient checking on smaller models 
-% and smaller training sets (e.g., using only 10 training examples and 1-2 hidden 
-% units) may speed things up.
 
 % First, lets make sure your numerical gradient computation is correct for a
-% simple function.  After you have implemented computeNumericalGradient.m,
-% run the following: 
+% simple function.  
 %checkNumericalGradient();
+%disp('going to compute numerical gradient');
 
-% Now we can use it to check your cost function and derivative calculations
+% check your cost function and derivative calculations
 % for the sparse autoencoder.  
-%numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, ...
+%numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
 %                                                  sparsityParam, beta, ...
-%                                                  patches), theta);
-
-% Use this to visually compare the gradients side by side
-% disp([numgrad grad]); 
-% get the positions that numgrad and grad mismatch
-%for i = 1 : length(numgrad)
-%  if abs(numgrad(i) - grad(i)) > 0.1
-%    disp([i numgrad(i) grad(i)]) 
-%  end
-%end
+%                                                   patches), theta);
 
 % Compare numerically computed gradients with the ones obtained from backpropagation
+%disp(size(numgrad));
+%disp(size(grad));
 %diff = norm(numgrad-grad)/norm(numgrad+grad);
 %disp(diff); % Should be small. In our implementation, these values are
             % usually less than 1e-9.
@@ -117,7 +107,7 @@ options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                           % need a function pointer with two outputs: the
                           % function value and the gradient. In our problem,
                           % sparseAutoencoderCost.m satisfies this.
-options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
+options.maxIter = 10000;	  % Maximum number of iterations of L-BFGS to run 
 options.display = 'on';
 
 
@@ -126,6 +116,9 @@ options.display = 'on';
                                    lambda, sparsityParam, ...
                                    beta, patches), ...
                               theta, options);
+
+disp('final cost:');
+disp(cost);
 
 %%======================================================================
 %% STEP 5: Visualization 
