@@ -83,12 +83,17 @@ theta = initializeParameters(hiddenSize, visibleSize);
 % Now we can use it to check your cost function and derivative calculations
 % for the sparse autoencoder.  
 %numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, ...
-%                                                  hiddenSize, lambda, ...
 %                                                  sparsityParam, beta, ...
 %                                                  patches), theta);
 
 % Use this to visually compare the gradients side by side
-%disp([numgrad grad]); 
+% disp([numgrad grad]); 
+% get the positions that numgrad and grad mismatch
+%for i = 1 : length(numgrad)
+%  if abs(numgrad(i) - grad(i)) > 0.1
+%    disp([i numgrad(i) grad(i)]) 
+%  end
+%end
 
 % Compare numerically computed gradients with the ones obtained from backpropagation
 %diff = norm(numgrad-grad)/norm(numgrad+grad);

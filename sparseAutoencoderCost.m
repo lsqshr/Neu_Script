@@ -22,15 +22,7 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	W{2} = W2;
 	b{1} = b1;
 	b{2} = b2;
-
-	% Cost and gradient variables (your code needs to compute these values). 
-	% Here, we initialize them to zeros. 
-	cost = 0;
-	W1grad = zeros(size(W1)); 
-	W2grad = zeros(size(W2));
-	b1grad = zeros(size(b1)); 
-	b2grad = zeros(size(b2));
-
+    
 	%% ---------- YOUR CODE HERE --------------------------------------
 	%  Instructions: Compute the cost/optimization objective J_sparse(W,b) for the Sparse Autoencoder,
 	%                and the corresponding gradients W1grad, W2grad, b1grad, b2grad.
@@ -58,28 +50,12 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	for l = 1 : nlayer - 1
 	    delta_W{l} = zeros(size(W{l}));
 	    delta_b{l} = zeros(size(b{l}));
-	end
-
-	% init W and b
-
-	%for l = 1 : nlayer - 1
-	%    % init W as gaussian distribution with a range in [-(6/(n_in + n_out + 1))^-2, (6/(n_in + n_out + 1))^-2]
-	%    if l == 1
-	%        n_in = 0;
-	%    else 
-	%        n_in = self.l_nele(l - 1);
-	%    end
-	%    n_out = self.l_nele(l + 1);
-	%    highbound = -((6/(n_in + n_out + 1))^(0.5));
-	%    lowbound = -highbound;
-	%    self.W{l} = lowbound + (highbound - lowbound) .* udmatrix;
-	%   self.b{l} = zeros(self.l_nele(l + 1), 1);
-	%end
+    end
 
 	% for the unsupervised neural network(sparse) we need to
 	% feedforward all the instances before the backpropagation
 	[cost, hp] = pre_feedforward(W, b, data, LAMBDA, sparsityParam, BETA);
-	    
+
 	for m = 1 : ninstance
 	    % use backpropagation to get two partial derivatives
 	    [dW, db] = backpropagation(data(:, m), W, b, hp, BETA, sparsityParam);
@@ -96,8 +72,8 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	bgrads = cell(1, nlayer - 1);
 
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = (1 / ninstance * delta_W{l}) + LAMBDA * W{l} ; % the paritial derivative of W
-	    bgrads{l} = (1 / ninstance * delta_b{l});
+	    Wgrads{l} = delta_W{l} / ninstance + (LAMBDA * W{l}) ; % the paritial derivative of W
+	    bgrads{l} = delta_b{l} / ninstance;
 	end
 
 	%-------------------------------------------------------------------
@@ -119,16 +95,16 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	function diver = KL(p, pj)
             diver = p * log(p ./ pj) + (1 - p) * log((1 - p) ./ (1 - pj));
     end
-
-
-	function [dW, db] = backpropagation(instance, W, b, hp, BETA, sparsityParam)
-	linstance = size(instance,1);
+    
+    
+ function [dW, db] = backpropagation(instance, W, b, hp, BETA, sparsityParam)
+	
 	nlayer = length(W) + 1;
 
 	% in case of the big dataset, im doing the feedforward twice
 	% (have done it before backpropagations to compute the average activations)
 	% the hp returned here will be disposed
-	[hypothesis, a, disposed_hp] = feedforward(instance, W, b, []);
+	[hypothesis, a, ~] = feedforward(instance, W, b, []);
 
 	% calc the error terms
 	d_sigmoid = (hypothesis .* (1 - hypothesis));
@@ -137,8 +113,8 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 
 	for l = (nlayer - 1): -1 : 2
 	    d_sigmoid = (a{l} .* (1 - a{l}));
-	    errterms{l} = (W{l}' * errterms{l + 1}) .* d_sigmoid + ...
-	            BETA * (-(sparsityParam ./ hp{l}) + (1 - sparsityParam) ./ (1 - hp{l}));
+	    errterms{l} = ((W{l}' * errterms{l + 1})  + ...
+	            BETA * (-(sparsityParam ./ hp{l}) + (1 - sparsityParam) ./ (1 - hp{l}))) .* d_sigmoid;
 	end
 
 	dW = cell(nlayer - 1, 1);
@@ -166,28 +142,25 @@ function [y, a, hp] =  feedforward(inputs, W, b, hp)
     % in case we do not need to 
     if isempty(hp)
 		hp = cell(0);
-	end
+    end
 
     for l = 1 : nlayer - 1
         z{l + 1} = W{l} * a{l} + b{l};
+        disp([size(W{l} * a{l}), size(b{l})]);
         a{l + 1} = sigmoid(z{l + 1});
-	    if ~isempty(hp) 
-	        hp{l + 1} = increment_p(a{l + 1}, hp{l + 1});
+    end
+
+    if ~isempty(hp) 
+	    for l = 2 : nlayer - 1
+	    	if isempty(hp{l})
+	    		hp{l} = a{l};
+	    	else
+				hp{l} = hp{l} + a{l};
+			end
 	    end
     end
-    
-     y = a{nlayer};
-end
 
-function hp = increment_p(a, hp)
-    % args: 
-    % a vector of the activation of each unit in this layer
-    % l the index of the current layer
-    if isempty(hp) 
-        hp = a;
-    else
-        hp = hp + a;
-    end
+     y = a{nlayer};
 end
 
 % feedforward through all the instances to compute the average
@@ -195,14 +168,13 @@ end
 function [cost, hp] = pre_feedforward(W, b, data, LAMBDA, p, BETA)
     nlayer = length(W) + 1;
     ninstance = size(data, 2);
-    hp = cell(1, nlayer);
 
     % do one feedforward on all of the instances and get the cost
     % the sparsity parameter will be fillt up in self.JWb()
     [cost, hp] = JWb(W,b, data, LAMBDA);
 
     % cal the average for each vector a(x)
-    for l = 1 : nlayer
+    for l = 2 : nlayer - 1
         hp{l} = hp{l} / ninstance;
     end
 
@@ -211,6 +183,9 @@ function [cost, hp] = pre_feedforward(W, b, data, LAMBDA, p, BETA)
     for l = 2 : nlayer - 1
         s = s + sum(KL(p, hp{l}));
     end
+    %disp('KL')
+    %disp(KL(p, hp{2}))
+    %disp('===========')
 
     cost = cost + BETA * s;
 end
@@ -223,8 +198,7 @@ function [cost, hp] = JWb(W, b, data, LAMBDA)
     cost = 0;
     for m = 1 : ninstance
         instance = data(:, m);
-        linstance = size(instance,1);
-        [hypothesis, a, hp] = feedforward(instance, W, b, hp);
+        [hypothesis, ~, hp] = feedforward(instance, W, b, hp);
         label = instance;
         cost = cost + 0.5 * sum((label - hypothesis) .^ 2);
     end
