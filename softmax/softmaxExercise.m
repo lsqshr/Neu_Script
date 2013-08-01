@@ -61,7 +61,7 @@ theta = 0.005 * randn(numClasses * inputSize, 1);
 %  Implement softmaxCost in softmaxCost.m. 
 
 [cost, grad] = softmaxCost(theta, numClasses, inputSize, lambda, inputData, labels);
-                                     
+
 %%======================================================================
 %% STEP 3: Gradient checking
 %
@@ -85,7 +85,7 @@ if DEBUG
 
     % When your gradients are correct, congratulations!
 end
-
+pause();
 %%======================================================================
 %% STEP 4: Learning parameters
 %
