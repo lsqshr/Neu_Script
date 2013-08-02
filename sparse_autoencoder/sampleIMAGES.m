@@ -1,3 +1,5 @@
+% sample random patches from the given whitened images
+
 function patches = sampleIMAGES(dest, numpatches, patchsize)
 % sampleIMAGES
 % Returns 10000 patches for training
@@ -8,9 +10,6 @@ load(dest);    % load images from disk
 % column per patch, 10000 columns. 
 patches = zeros(patchsize*patchsize, numpatches);
 
-%% ---------- YOUR CODE HERE --------------------------------------
-%  Instructions: Fill in the variable called "patches" using data 
-%  from IMAGES.  
 %  
 %  IMAGES is a 3D array containing 10 images
 %  For instance, IMAGES(:,:,6) is a 512x512 array containing the 6th image,
