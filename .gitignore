@@ -1,7 +1,7 @@
 *asv
 *jpg
 *ubyte
-IMAGES.mat
+*mat
 sparse_autoencoder/minFunc/*
 *minFunc/*
 *swp

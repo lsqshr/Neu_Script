@@ -26,9 +26,12 @@ thetagrad = zeros(numClasses, inputSize);
 
 % compute cost(theta)
 % compute h_theta(x), vectorized
-e_matrix = exp(theta * data);
-e_sum = sum(e_matrix);
-h_theta= repmat((1 ./ e_sum), numClasses, 1) .* e_matrix;
+M = exp(theta * data);
+
+% tried to avoid overflow by adding the following line, while it creates -Inf sometimes
+%M = bsxfun(@minus, M, median(M));
+
+h_theta = bsxfun(@rdivide, M, sum(M));
 log_h = log(h_theta);
 cost = -(1 / ninstances) * sum(sum(groundTruth .* log_h));
 penalty = (0.5 * lambda) * sum(sum(theta .^ 2));

@@ -24,6 +24,7 @@ lambda = 0.0001;     % weight decay parameter
 %lambda = 0;
 ninstance = 10000;
 beta = 3;            % weight of sparsity penalty term       
+DEBUG = false;
 %beta = 0;
 
 %%======================================================================
@@ -41,57 +42,32 @@ theta = initializeParameters(hiddenSize, visibleSize);
 
 %%======================================================================
 %% STEP 2: Implement sparseAutoencoderCost
-%
-%  You can implement all of the components (squared error cost, weight decay term,
-%  sparsity penalty) in the cost function at once, but it may be easier to do 
-%  it step-by-step and run gradient checking (see STEP 3) after each step.  We 
-%  suggest implementing the sparseAutoencoderCost function using the following steps:
-%
-%  (a) Implement forward propagation in your neural network, and implement the 
-%      squared error term of the cost function.  Implement backpropagation to 
-%      compute the derivatives.   Then (using lambda=beta=0), run Gradient Checking 
-%      to verify that the calculations corresponding to the squared error cost 
-%      term are correct.
-%
-%  (b) Add in the weight decay term (in both the cost function and the derivative
-%      calculations), then re-run Gradient Checking to verify correctness. 
-%
-%  (c) Add in the sparsity penalty term, then re-run Gradient Checking to 
-%      verify correctness.
-%
-%  Feel free to change the training settings when debugging your
-%  code.  (For example, reducing the training set size or 
-%  number of hidden units may make your code run faster; and setting beta 
-%  and/or lambda to zero may be helpful for debugging.)  However, in your 
-%  final submission of the visualized weights, please use parameters we 
-%  gave in Step 0 above.
 
 [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
                                      sparsityParam, beta, patches);
 
 %%======================================================================
 %% STEP 3: Gradient Checking
-
-% First, lets make sure your numerical gradient computation is correct for a
-% simple function.  
-%checkNumericalGradient();
-%disp('going to compute numerical gradient');
+if DEBUG:
+checkNumericalGradient();
+disp('going to compute numerical gradient');
 
 % check your cost function and derivative calculations
 % for the sparse autoencoder.  
-%numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
-%                                                  sparsityParam, beta, ...
-%                                                   patches), theta);
+numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
+                                                  sparsityParam, beta, ...
+                                                   patches), theta);
 
 % Compare numerically computed gradients with the ones obtained from backpropagation
-%disp(size(numgrad));
-%disp(size(grad));
-%diff = norm(numgrad-grad)/norm(numgrad+grad);
-%disp(diff); % Should be small. In our implementation, these values are
+disp(size(numgrad));
+disp(size(grad));
+diff = norm(numgrad-grad)/norm(numgrad+grad);
+disp(diff); % Should be small. In our implementation, these values are
             % usually less than 1e-9.
 
             % When you got this working, Congratulations!!! 
 
+end
 %%======================================================================
 %% STEP 4: After verifying that your implementation of
 %  sparseAutoencoderCost is correct, You can start training your sparse
@@ -116,10 +92,6 @@ options.display = 'on';
                                    lambda, sparsityParam, ...
                                    beta, patches), ...
                               theta, options);
-
-disp('final cost:');
-disp(cost);
-
 %%======================================================================
 %% STEP 5: Visualization 
 

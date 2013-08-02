@@ -45,7 +45,7 @@ inputData = images;
 % in order to speed up gradient checking. 
 % Here, we create synthetic dataset using random data for testing
 
-DEBUG = true; % Set DEBUG to true when debugging.
+DEBUG = false; % Set DEBUG to true when debugging.
 if DEBUG
     inputSize = 8;
     inputData = randn(8, 100);
@@ -85,7 +85,6 @@ if DEBUG
 
     % When your gradients are correct, congratulations!
 end
-pause();
 %%======================================================================
 %% STEP 4: Learning parameters
 %
