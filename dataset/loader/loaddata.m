@@ -8,7 +8,7 @@ if any(strfind(feature_name, 'VOLUME'))
 end
 
 if any(strfind(feature_name, 'CONVEXITY'))
-	M = [CONVECXITY  data.VOLUME];
+	M = [M  data.VOLUME];
 end
 
 if any(strfind(feature_name, 'WAVELET'))
