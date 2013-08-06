@@ -53,10 +53,13 @@ function [dW, db] = backpropagation(labels, W, b, a, hp, BETA, sparsityParam)
 	hypothesis = a{nlayer};
 
 	% calc the error terms
+
+	% first layer
 	sig_prime = (hypothesis .* (1 - hypothesis));
 	errterms = cell(nlayer, 1);
 	errterms{nlayer} = -(labels - hypothesis) .* sig_prime;
 
+	% hidden layers
 	for l = (nlayer - 1): -1 : 2
 	    sig_prime = (a{l} .* (1 - a{l}));
 	    sparsity_delta = -(sparsityParam ./ hp{l}) + (1 - sparsityParam) ./ (1 - hp{l});

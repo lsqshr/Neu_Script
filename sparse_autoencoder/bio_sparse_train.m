@@ -87,7 +87,7 @@ function model = bio_sparse_train(hiddenSize, instances, sparsityParam, lambda, 
   model.hiddenSize = hiddenSize;
   model.visibleSize = visibleSize;
 
-  % save('../dataset/model.mat', 'model');
+  save('../dataset/model.mat', 'model');
 
   end
   %%======================================================================
