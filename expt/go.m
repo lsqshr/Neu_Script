@@ -1,5 +1,5 @@
 % try increasing the hiddenSize 
-  %instances = sampleIMAGES('IMAGES.mat', ninstance, patchsize);
+  %instances = sampleIMAGES('IMAGES.mat', ninstances, patchsize);
 addpath ../sparseAutoencoder
 addpath ../dataset/loader
 
@@ -10,7 +10,6 @@ lacc = zeros(1, upper - lower);
 for hiddenSize = lower : upper 
 	model = bioSparseTrain(hiddenSize, instances, 0.05, 0.0001, 3, 400, false, false);
 	lacc(hiddenSize - lower + 1) = softmax(10, model); % using 10 fold to compute the accuracy.
-	disp({'hiddenSize', hiddenSize});
 end
 
 save('hiddenSize_256_512.mat', 'lacc2');

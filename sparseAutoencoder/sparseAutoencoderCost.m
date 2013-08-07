@@ -11,7 +11,7 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	b{1} = b1;
 	b{2} = b2;
 
-	ninstance = size(data, 2);
+	ninstances = size(data, 2);
 	nlayer = length(W) + 1;
 
 	% for the unsupervised neural network(sparse) we need to
@@ -25,8 +25,8 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	bgrads = cell(1, nlayer - 1);
 
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = dW{l} / ninstance + (LAMBDA * W{l}) ; % the paritial derivative of W
-	    bgrads{l} = db{l} / ninstance;
+	    Wgrads{l} = dW{l} / ninstances + (LAMBDA * W{l}) ; % the paritial derivative of W
+	    bgrads{l} = db{l} / ninstances;
 	end
 
 	%-------------------------------------------------------------------

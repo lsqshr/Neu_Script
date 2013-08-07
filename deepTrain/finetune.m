@@ -1,7 +1,11 @@
-function finetune(unsTheta, softmaxModel, visibleSize, lhidden, ...
+function [cost, grad] = finetune(theta, softmaxModel, visibleSize, lhidden, ...
                                              LAMBDA, sparsityParam, BETA, data, labels)
 
 	addpath '../sparseAutoencoder/';
+	
+	suTheta = theta();
+	unsTheta = theta();
+
 	for i = 1 : length(unsTheta)
 		hiddenSize = lhidden(i);
 		if i == 1	
@@ -11,47 +15,45 @@ function finetune(unsTheta, softmaxModel, visibleSize, lhidden, ...
 		end
 		W{i} = reshape(unsTheta{i}(1 : hiddenSize * visibleSize),...
 						 hiddenSize, visibleSize);
-		%disp(length(unsTheta));
-		%disp({hiddenSize visibleSize});
 		b{i} = unsTheta{i}(2 * hiddenSize * visibleSize + 1 :...
 						 2 * hiddenSize * visibleSize + hiddenSize);
 	end
 
-	ninstance = size(data, 2);
+	ninstancess = size(data, 2);
 	nlayer = length(W) + 1;
 
 	% for the unsupervised neural network(sparse) we need to
 	% feedforward all the instances before the backpropagatlion
 	[cost, a, hp] = deepPreFeedforward(W, b, data,...
-										 LAMBDA, sparsityParam, ...
-										 BETA, labels, softmaxModel);
+									 LAMBDA, sparsityParam, ...
+									 BETA, labels, softmaxModel);
 
     % use backpropagation to get two partial derivatives
-    [dW, db] = backpropagation(data, W, b, a,...
+    [dW, db] = backpropagation(labels, W, b, a,...
 	     hp, BETA, sparsityParam,...
-	      @(hypothesis, labels) softmaxDeriv(ninstances, softmaxModel.optTheta, hypothesis, labels));
+	      @(hypothesis, labels) softmaxDeriv(...
+	      				lhidden(length(lhidden)), softmaxModel.optTheta, softmaxModel.numClasses,...
+	      				a{length(lhidden) + 1}, hypothesis,labels));
 
 	Wgrads = cell(1, nlayer - 1);
 	bgrads = cell(1, nlayer - 1);
 
+	gradW = [];
+	gradb = [];
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = dW{l} / ninstance + (LAMBDA * W{l}) ; % the paritial derivative of W
-	    bgrads{l} = db{l} / ninstance;
+	    Wgrads{l} = dW{l} / ninstancess +...
+		     	    (LAMBDA * W{l}) ; % the paritial derivative of W
+	    bgrads{l} = db{l} / ninstancess;
+	    gradW = [gradW ; Wgrads{l}(:)];
+	    gradb = [gradb ; bgrads{l}(:)];
 	end
-
-	%-------------------------------------------------------------------
-	% After computing the cost and gradient, we will convert the gradients back
-	% to a vector format (suitable for minFunc).  Specifically, we will unroll
-	% your gradient matrices into a vector.
-
-	grad = [Wgrads{1}(:) ; Wgrads{2}(:) ; bgrads{1}(:) ; bgrads{2}(:)];
-
+	grad = [gradW ; gradb];
 end
 
-function dJ = softmaxDeriv(labels, theta, numClasses, inputSize )
-	theta = reshape(theta, numClasses, inputSize);
-	ninstances = size(data, 2);
-	groundTruth = full(sparse(labels, 1:ninstances, 1));
+function dJ = softmaxDeriv(inputSize ,theta, numClasses,...
+							 data, hypothesis, labels)
+	ninstancess = size(data, 2);
+	groundTruth = full(sparse(labels, 1:ninstancess, 1));
 
 	% compute cost(theta)
 	% compute hTheta(x), vectorized
@@ -61,7 +63,7 @@ function dJ = softmaxDeriv(labels, theta, numClasses, inputSize )
 	%M = bsxfun(@minus, M, median(M));
 
 	hTheta = bsxfun(@rdivide, M, sum(M));
-		groundTruth = full(sparse(labels, 1:ninstances, 1));
+		groundTruth = full(sparse(labels, 1:ninstancess, 1));
 
-	dJ = theta' * (groundTruth - hTheta)
+	dJ = theta' * (groundTruth - hTheta);
 end

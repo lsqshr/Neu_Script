@@ -5,14 +5,12 @@ function [acc, softmaxModel] = softmax(nfold, model)
     load biodata;
 
     softmaxModel = 0;
-    % disp(acc, softmaxModel);
 
     numClasses = 4;     % Number of classes (MNIST images fall into 10 classes)
     lambda = 1e-4; % Weight decay parameter
 
     %split data and labels for testing
     inputData = model.hiddenFeatures;
-    disp(size(inputData));
     inputSize = size(inputData, 1); % Size of input vector 
     ndata = size(inputData, 2);
 

@@ -39,6 +39,15 @@ function deepTrain(lhidden)
 	finetune(T, softmaxModel, size(instances, 1),...
 			 lhidden, 0.05, 0.0001, 3, instances, labels);
 
+	%  Use minFunc to minimize the function
+	addpath ../sparseAutoencoder/minFunc/
+	options.Method = 'lbfgs'; 
+	options.maxIter = MAXITER;	  % Maximum number of iterations of L-BFGS to run 
+
+	[opttheta, cost] = minFunc( @(p) finetune(T, softmaxModel, size(instances, 1),...
+			 lhidden, 0.05, 0.0001, 3, instances, labels), ...
+	  	                             theta, options);
+
 	% grab random data from the initial dataset and feedforward the whole network
 	% and observe the accuracy
 end

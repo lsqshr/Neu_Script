@@ -2,10 +2,10 @@
 % activations and gives out the current SEC
 function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, labels, feedfun, costfun)
     nlayer = length(W) + 1;
-    ninstance = size(data, 2);
+    ninstances = size(data, 2);
 
     % do feedforward on all of the instances and get the cost
-    ninstance = size(data, 2);
+    ninstances = size(data, 2);
     nlayer = length(W) + 1;
     cost = 0;
 
