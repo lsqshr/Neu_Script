@@ -1,6 +1,6 @@
 % feedforward through all the instances to compute the average
 % activations and gives out the current SEC
-function [cost, a, hp] = pre_feedforward(W, b, data, LAMBDA, p, BETA, labels, feedfun)
+function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, labels, feedfun, costfun)
     nlayer = length(W) + 1;
     ninstance = size(data, 2);
 
@@ -12,7 +12,7 @@ function [cost, a, hp] = pre_feedforward(W, b, data, LAMBDA, p, BETA, labels, fe
     % feedforward m instances by vectorization
     [hypothesis, a, hp] = feedfun(data, W, b);
 
-    cost = (sum(0.5 * sum((labels - hypothesis) .^ 2))) / ninstance;
+    cost = costfun(labels, hypothesis);
 
     % compute J(W,b)
    	s = 0;

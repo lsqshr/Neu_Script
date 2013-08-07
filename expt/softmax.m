@@ -69,7 +69,7 @@ function [acc, softmaxModel] = softmax(nfold, model)
         %  gradients are correct before learning the parameters.
         % 
 
-            addpath ../sparse_autoencoder
+            addpath ../sparseAutoencoder
             numGrad = computeNumericalGradient( @(x) softmaxCost(x, numClasses, ...
                                             inputSize, lambda, trainData, trainLabels), theta);
 
@@ -114,7 +114,7 @@ function [acc, softmaxModel] = softmax(nfold, model)
         end
 
         % You will have to implement softmaxPredict in softmaxPredict.m
-        [pred] = softmaxPredict(softmaxModel, testData);
+        [~, pred] = softmaxPredict(softmaxModel, testData);
 
         acc = mean(testLabels(:) == pred(:));
         fprintf('Accuracy: %0.3f%%\n', acc * 100);

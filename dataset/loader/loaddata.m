@@ -1,30 +1,30 @@
-function [M, labels] = loaddata(path, feature_name)
+function [M, labels] = loaddata(path, featureName)
 	addpath ..;
 	load(path);
 
 	M = [];
 
-	if any(strfind(feature_name, 'VOLUME'))
+	if any(strfind(featureName, 'VOLUME'))
 		M = data.VOLUME;
 	end
 
-	if any(strfind(feature_name, 'CONVEXITY'))
+	if any(strfind(featureName, 'CONVEXITY'))
 		M = [M  data.VOLUME];
 	end
 
-	if any(strfind(feature_name, 'WAVELET'))
+	if any(strfind(featureName, 'WAVELET'))
 		M = [M  data.WAVELET];
 	end
 
-	if any(strfind(feature_name, 'CMRGLC'))
+	if any(strfind(featureName, 'CMRGLC'))
 		M = [M  data.CMRGLC];
 	end
 
-	if any(strfind(feature_name, 'SOLIDITY'))
+	if any(strfind(featureName, 'SOLIDITY'))
 		M = [M  data.SOLIDITY];
 	end
 
-	if any(strfind(feature_name, 'CCV'))
+	if any(strfind(featureName, 'CCV'))
 		M = [M  data.CCV];
 	end
 

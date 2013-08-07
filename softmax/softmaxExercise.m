@@ -70,7 +70,7 @@ theta = 0.005 * randn(numClasses * inputSize, 1);
 % 
 
 if DEBUG
-    addpath ../sparse_autoencoder
+    addpath ../sparseAutoencoder
     numGrad = computeNumericalGradient( @(x) softmaxCost(x, numClasses, ...
                                     inputSize, lambda, inputData, labels), theta);
 
@@ -115,7 +115,7 @@ labels(labels==0) = 10; % Remap 0 to 10
 inputData = images;
 
 % You will have to implement softmaxPredict in softmaxPredict.m
-[pred] = softmaxPredict(softmaxModel, inputData);
+[~, pred] = softmaxPredict(softmaxModel, inputData);
 
 acc = mean(labels(:) == pred(:));
 fprintf('Accuracy: %0.3f%%\n', acc * 100);

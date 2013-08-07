@@ -1,9 +1,9 @@
-function model = bio_sparse_train(hiddenSize, instances, sparsityParam, lambda, beta, MAXITER, DEBUG, VISUAL)
+function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, beta, MAXITER, DEBUG, VISUAL)
   %%======================================================================
   %% STEP 0: Here we provide the relevant parameters values that will
   %  allow your sparse autoencoder to get good filters; you do not need to 
   %  change the parameters below.
-  addpath ../sparse_autoencoder/
+  addpath ../sparseAutoencoder/
   addpath ../dataset/
   addpath ../dataset/loader/
 
@@ -20,7 +20,7 @@ function model = bio_sparse_train(hiddenSize, instances, sparsityParam, lambda, 
   if DEBUG == true
     disp(size(instances));
   end
-  %display_network(instances(:,randi(size(instances,2),200,1)),patchsize);
+  %displayNetwork(instances(:,randi(size(instances,2),200,1)),patchsize);
 
   %  Obtain random parameters theta
   theta = initializeParameters(hiddenSize, visibleSize);
@@ -63,7 +63,7 @@ function model = bio_sparse_train(hiddenSize, instances, sparsityParam, lambda, 
   theta = initializeParameters(hiddenSize, visibleSize);
 
   %  Use minFunc to minimize the function
-  addpath ../sparse_autoencoder/minFunc/
+  addpath ../sparseAutoencoder/minFunc/
   options.Method = 'lbfgs'; % Here, we use L-BFGS to optimize our cost
                             % function. Generally, for minFunc to work, you
                             % need a function pointer with two outputs: the
@@ -96,7 +96,7 @@ function model = bio_sparse_train(hiddenSize, instances, sparsityParam, lambda, 
   if VISUAL == true
   W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
   %disp(W1);
-  display_network(W1, 12); 
+  displayNetwork(W1, 12); 
 
   print -djpeg weights.jpg   % save the visualization to a file 
   end

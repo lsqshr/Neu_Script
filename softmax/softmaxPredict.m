@@ -1,4 +1,4 @@
-function [pred] = softmaxPredict(softmaxModel, data)
+function [condP , pred] = softmaxPredict(softmaxModel, data)
 
 % softmaxModel - model trained using softmaxTrain
 % data - the N x M input matrix, where each column data(:, i) corresponds to
@@ -16,8 +16,8 @@ pred = zeros(1, size(data, 2));
 %                from 1.
 
 M = exp(theta * data);
-h = bsxfun(@rdivide, M, sum(M));
-[pred_p, pred] = max(h);
+condP = bsxfun(@rdivide, M, sum(M));
+[predP, pred] = max(condP);
 % ---------------------------------------------------------------------
 
 end

@@ -1,4 +1,4 @@
-function deep_train(lhidden)
+function deepTrain(lhidden)
 	% lhidden: the list of number of each hidden layer units
 
 	% train each auto encoder one at a time
@@ -7,7 +7,7 @@ function deep_train(lhidden)
 	% the parameters will be fine tuned using softmax
 	addpath ../expt/
 	addpath ../dataset/loader;
-	addpath ../sparse_autoencoder;
+	addpath ../sparseAutoencoder;
 	[instances, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
 	W = cell(size(lhidden));
 	b = cell(size(lhidden));
@@ -23,7 +23,7 @@ function deep_train(lhidden)
 		hiddenSize = lhidden(i);
 		visibleSize = size(inputs, 1);
 
-		model = bio_sparse_train(hiddenSize, inputs, 0.05, 0.0001, 3, 400, false, false);
+		model = bioSparseTrain(hiddenSize, inputs, 0.05, 0.0001, 3, 400, false, false);
 
 		% extract the W(1) and b(1) from the theta vector
 		% W{i} = reshape(model.theta(1 : hiddenSize * visibleSize), hiddenSize, visibleSize); 
@@ -32,11 +32,12 @@ function deep_train(lhidden)
 	end
 
 	% train softmax parameters using the features from the last unsupervised layer
-	[acc, softmax_model] = softmax(1, model); % when set nfold to 1, no test data is splitted disp 'softmax train done';
+	[acc, softmaxModel] = softmax(1, model); % when set nfold to 1, no test data is splitted disp 'softmax train done';
 
 	% concat the whole network from each layer together 
 	% fine-tune!!!
-	softmax_theta = softmax_model.optTheta;
+	finetune(T, softmaxModel, size(instances, 1),...
+			 lhidden, 0.05, 0.0001, 3, instances, labels);
 
 	% grab random data from the initial dataset and feedforward the whole network
 	% and observe the accuracy

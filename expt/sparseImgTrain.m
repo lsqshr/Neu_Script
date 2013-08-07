@@ -3,7 +3,7 @@
 %  allow your sparse autoencoder to get good filters; you do not need to 
 %  change the parameters below.
 clear all;
-addpath ../sparse_autoencoder/
+addpath ../sparseAutoencoder/
 patchsize = 8
 visibleSize = patchsize * patchsize;   % number of input units 
 hiddenSize = 25;     % number of hidden units 
@@ -18,11 +18,11 @@ DEBUG = false;
 %%======================================================================
 %% STEP 1: Implement sampleIMAGES
 %
-%  After implementing sampleIMAGES, the display_network command should
+%  After implementing sampleIMAGES, the displayNetwork command should
 %  display a random sample of 200 patches from the dataset
 
 patches = sampleIMAGES('IMAGES.mat', ninstance, patchsize);
-display_network(patches(:,randi(size(patches,2),200,1)),patchsize);
+displayNetwork(patches(:,randi(size(patches,2),200,1)),patchsize);
 
 
 %  Obtain random parameters theta
@@ -84,6 +84,6 @@ options.display = 'on';
 %% STEP 5: Visualization 
 
 W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-display_network(W1', 12); 
+displayNetwork(W1', 12); 
 
 print -djpeg weights.jpg   % save the visualization to a file 

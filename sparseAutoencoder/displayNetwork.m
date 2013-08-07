@@ -1,4 +1,4 @@
-function [h, array] = display_network(A, opt_normalize, opt_graycolor, cols, opt_colmajor)
+function [h, array] = displayNetwork(A, opt_normalize, opt_graycolor, cols, opt_colmajor)
 % This function visualizes filters in matrix A. Each column of A is a
 % filter. We will reshape each column into a square image and visualizes
 % on each cell of the visualization panel. 
