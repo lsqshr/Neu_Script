@@ -5,14 +5,14 @@ function hiddenFeatures = hiddenFeatures(theta, hiddenSize, visibleSize, data, L
 	b{2} = theta(2*hiddenSize*visibleSize+hiddenSize+1:end);
 
     nlayer = length(W) + 1;
-    ninstances = size(data, 2);
+    ndata = size(data, 2);
 
-    % do feedforward on all of the instances and get the cost
-    ninstances = size(data, 2);
+    % do feedforward on all of the data and get the cost
+    ndata = size(data, 2);
     nlayer = length(W) + 1;
     cost = 0;
 
-    % feedforward m instances by vectorization
+    % feedforward m data by vectorization
     [~, a, ~] = feedforward(data, W, b);
 
     hiddenFeatures = a{2};

@@ -4,5 +4,5 @@ function [cost, a, hp] = deepPreFeedforward(W, b, data, LAMBDA, p, BETA, labels,
 								 	softmaxModel), @softCost);
 	% use the activations of last unsupervised layer to predict
 	% add the results of the classification probablities to the end
-	cost = cost + 0.5 * LAMBDA * sum(softmaxModel.optTheta .^ 2);
+	cost = cost + 0.5 * LAMBDA * sum(sum(softmaxModel.optTheta .^ 2));
 end

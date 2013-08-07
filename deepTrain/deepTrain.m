@@ -8,14 +8,14 @@ function deepTrain(lhidden)
 	addpath ../expt/
 	addpath ../dataset/loader;
 	addpath ../sparseAutoencoder;
-	[instances, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
+	[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
 	W = cell(size(lhidden));
 	b = cell(size(lhidden));
 	T = cell(size(lhidden));
 
 	for i = 1 : length(lhidden)
 		if i == 1
-			inputs = instances;
+			inputs = data;
 		else
 			inputs = model.hiddenFeatures;
 		end
@@ -36,16 +36,38 @@ function deepTrain(lhidden)
 
 	% concat the whole network from each layer together 
 	% fine-tune!!!
-	finetune(T, softmaxModel, size(instances, 1),...
-			 lhidden, 0.05, 0.0001, 3, instances, labels);
+	%finetune(T, softmaxModel, size(data, 1),...
+	%		 lhidden, 0.05, 0.0001, 3, data, labels);
 
 	%  Use minFunc to minimize the function
 	addpath ../sparseAutoencoder/minFunc/
 	options.Method = 'lbfgs'; 
-	options.maxIter = MAXITER;	  % Maximum number of iterations of L-BFGS to run 
+	options.maxIter = 200;	  % Maximum number of iterations of L-BFGS to run 
 
-	[opttheta, cost] = minFunc( @(p) finetune(T, softmaxModel, size(instances, 1),...
-			 lhidden, 0.05, 0.0001, 3, instances, labels), ...
+	thetaW = [];
+	thetaB = [];
+	% gather all the relevant theta into a vector
+	for i = 1 : length(T)
+		hiddenSize = lhidden(i);
+
+		if i == 1	
+			visibleSize = size(data, 1);
+		else
+			visibleSize = lhidden{i - 1};
+		end
+
+		W = T{i}(1 : hiddenSize * visibleSize);
+		b = T{i}(2 * hiddenSize * visibleSize + 1 :...
+						 2 * hiddenSize * visibleSize + hiddenSize);
+		thetaW = [thetaW ; W];
+		thetaB = [thetaB ; b];
+	end
+
+	theta = [thetaW ; thetaB];
+	lenUnsTheta = length(theta);
+
+	[opttheta, cost] = minFunc( @(x) finetune(x, lenUnsTheta, softmaxModel, size(data, 1),...
+									 lhidden, 0.05, 0.0001, 3, data, labels), ...
 	  	                             theta, options);
 
 	% grab random data from the initial dataset and feedforward the whole network

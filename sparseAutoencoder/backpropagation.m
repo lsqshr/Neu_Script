@@ -3,7 +3,7 @@ function [dW, db] = backpropagation(labels, W,...
     % The labels here are the initial data in unsupervised machine
 
     nlayer = length(W) + 1;
-    ninstances = size(labels, 2);
+    ndata = size(labels, 2);
     hypothesis = a{nlayer};
 
     % calc the error terms
@@ -16,7 +16,7 @@ function [dW, db] = backpropagation(labels, W,...
     for l = (nlayer - 1): -1 : 2
         sigPrime = (a{l} .* (1 - a{l}));
         sparsityDelta = -(sparsityParam ./ hp{l}) + (1 - sparsityParam) ./ (1 - hp{l});
-        errterms{l} = ((W{l}' * errterms{l + 1})  + BETA * repmat(sparsityDelta, 1, ninstances)) .* sigPrime;
+        errterms{l} = ((W{l}' * errterms{l + 1})  + BETA * repmat(sparsityDelta, 1, ndata)) .* sigPrime;
     end
 
     dW = cell(nlayer - 1, 1);

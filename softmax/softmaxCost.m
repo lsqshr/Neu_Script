@@ -12,9 +12,9 @@ function [cost, grad] = softmaxCost(theta, ...
 % Unroll the parameters from theta
 theta = reshape(theta, numClasses, inputSize);
 
-ninstancess = size(data, 2);
+ndatas = size(data, 2);
 
-groundTruth = full(sparse(labels, 1:ninstancess, 1));
+groundTruth = full(sparse(labels, 1:ndatas, 1));
 
 cost = 0;
 
@@ -29,18 +29,19 @@ M = exp(theta * data);
 
 hTheta = bsxfun(@rdivide, M, sum(M));
 logH = log(hTheta);
-cost = -(1 / ninstancess) * sum(sum(groundTruth .* logH));
+cost = -(1 / ndatas) * sum(sum(groundTruth .* logH));
 penalty = (0.5 * lambda) * sum(sum(theta .^ 2));
 cost = cost + penalty;
 
 % compute gradients
 prob = groundTruth - hTheta;
 s = 0;
-for i = 1 : ninstancess
+
+for i = 1 : ndatas
 	s = s + sumtimes(data(:, i), prob(:, i));
 end
 
-thetagrad =  s' / -ninstancess + lambda * theta;
+thetagrad =  s' / -ndatas + lambda * theta;
 
 % ------------------------------------------------------------------
 % Unroll the gradient matrices into a vector for minFunc

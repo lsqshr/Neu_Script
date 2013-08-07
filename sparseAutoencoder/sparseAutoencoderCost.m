@@ -11,11 +11,11 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	b{1} = b1;
 	b{2} = b2;
 
-	ninstances = size(data, 2);
+	ndata = size(data, 2);
 	nlayer = length(W) + 1;
 
 	% for the unsupervised neural network(sparse) we need to
-	% feedforward all the instances before the backpropagation
+	% feedforward all the data before the backpropagation
 	[cost, a, hp] = preFeedforward(W, b, data, LAMBDA, sparsityParam, BETA, data, @feedforward, @distance);
 
     % use backpropagation to get two partial derivatives
@@ -25,8 +25,8 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 	bgrads = cell(1, nlayer - 1);
 
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = dW{l} / ninstances + (LAMBDA * W{l}) ; % the paritial derivative of W
-	    bgrads{l} = db{l} / ninstances;
+	    Wgrads{l} = dW{l} / ndata + (LAMBDA * W{l}) ; % the paritial derivative of W
+	    bgrads{l} = db{l} / ndata;
 	end
 
 	%-------------------------------------------------------------------

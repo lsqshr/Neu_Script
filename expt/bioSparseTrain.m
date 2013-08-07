@@ -1,4 +1,4 @@
-function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, beta, MAXITER, DEBUG, VISUAL)
+function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, MAXITER, DEBUG, VISUAL)
   %%======================================================================
   %% STEP 0: Here we provide the relevant parameters values that will
   %  allow your sparse autoencoder to get good filters; you do not need to 
@@ -15,12 +15,12 @@ function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, be
   %% STEP 1: load data from the dataset into a vector 
   %
 
-  visibleSize = size(instances, 1);   % number of input units 
+  visibleSize = size(data, 1);   % number of input units 
 
   if DEBUG == true
-    disp(size(instances));
+    disp(size(data));
   end
-  %displayNetwork(instances(:,randi(size(instances,2),200,1)),patchsize);
+  %displayNetwork(data(:,randi(size(data,2),200,1)),patchsize);
 
   %  Obtain random parameters theta
   theta = initializeParameters(hiddenSize, visibleSize);
@@ -29,7 +29,7 @@ function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, be
   %% STEP 2: Implement sparseAutoencoderCost
 
   [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
-                                       sparsityParam, beta, instances);
+                                       sparsityParam, beta, data);
 
   %%======================================================================
   %% STEP 3: Gradient Checking
@@ -41,7 +41,7 @@ function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, be
   % for the sparse autoencoder.  
   numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
                                                     sparsityParam, beta, ...
-                                                     instances), theta);
+                                                     data), theta);
 
   % Compare numerically computed gradients with the ones obtained from backpropagation
   diff = norm(numgrad-grad)/norm(numgrad+grad);
@@ -76,11 +76,11 @@ function model = bioSparseTrain(hiddenSize, instances, sparsityParam, lambda, be
   [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                      visibleSize, hiddenSize, ...
                                      lambda, sparsityParam, ...
-                                     beta, instances), ...
+                                     beta, data), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance
-  features = hiddenFeatures(theta, hiddenSize, visibleSize, instances, lambda, beta);
+  features = hiddenFeatures(theta, hiddenSize, visibleSize, data, lambda, beta);
   % store a{2} and theta to a file
   model.hiddenFeatures = features;
   model.theta = theta;

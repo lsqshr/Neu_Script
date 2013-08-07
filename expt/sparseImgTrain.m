@@ -11,7 +11,7 @@ sparsityParam = 0.05;   % desired average activation of the hidden units.
                      % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		     %  in the lecture notes). 
 lambda = 0.0001;     % weight decay parameter       
-ninstances = 10000;
+ndata = 10000;
 beta = 3;            % weight of sparsity penalty term       
 DEBUG = false;
 
@@ -21,7 +21,7 @@ DEBUG = false;
 %  After implementing sampleIMAGES, the displayNetwork command should
 %  display a random sample of 200 patches from the dataset
 
-patches = sampleIMAGES('IMAGES.mat', ninstances, patchsize);
+patches = sampleIMAGES('IMAGES.mat', ndata, patchsize);
 displayNetwork(patches(:,randi(size(patches,2),200,1)),patchsize);
 
 

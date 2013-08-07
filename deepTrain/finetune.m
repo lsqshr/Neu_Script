@@ -1,29 +1,43 @@
-function [cost, grad] = finetune(theta, softmaxModel, visibleSize, lhidden, ...
-                                             LAMBDA, sparsityParam, BETA, data, labels)
+function [cost, grad] = finetune(theta, lenUnsTheta, softmaxModel,...
+								 visibleSize, lhidden, LAMBDA,...
+								 sparsityParam, BETA, data, labels)
 
 	addpath '../sparseAutoencoder/';
-	
-	suTheta = theta();
-	unsTheta = theta();
 
-	for i = 1 : length(unsTheta)
+	% get the number of digits in theta is for W
+	s = 0;
+	for i = 1 : length(lhidden)
+		if i == 1
+			s = s + size(data, 1) * lhidden(i);
+		else
+			s = s + lhidden(i) * lhidden(i - 1);
+		end
+	end
+
+	bstart = s + 1;
+	bTheta = theta(bstart : end);
+
+	for i = 1 : length(lhidden) 
 		hiddenSize = lhidden(i);
+
 		if i == 1	
 			visibleSize = size(data, 1);
 		else
 			visibleSize = lhidden{i - 1};
 		end
-		W{i} = reshape(unsTheta{i}(1 : hiddenSize * visibleSize),...
-						 hiddenSize, visibleSize);
-		b{i} = unsTheta{i}(2 * hiddenSize * visibleSize + 1 :...
-						 2 * hiddenSize * visibleSize + hiddenSize);
+
+		W{i} = reshape(theta((hiddenSize * visibleSize) * (i - 1) + 1 :...
+								 hiddenSize * visibleSize * i),...
+								 hiddenSize, visibleSize);
+		b{i} = bTheta((i - 1) * hiddenSize + 1 : ...
+					  i * hiddenSize);
 	end
 
-	ninstancess = size(data, 2);
+	ndatas = size(data, 2);
 	nlayer = length(W) + 1;
 
 	% for the unsupervised neural network(sparse) we need to
-	% feedforward all the instances before the backpropagatlion
+	% feedforward all the data before the backpropagatlion
 	[cost, a, hp] = deepPreFeedforward(W, b, data,...
 									 LAMBDA, sparsityParam, ...
 									 BETA, labels, softmaxModel);
@@ -41,9 +55,9 @@ function [cost, grad] = finetune(theta, softmaxModel, visibleSize, lhidden, ...
 	gradW = [];
 	gradb = [];
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = dW{l} / ninstancess +...
+	    Wgrads{l} = dW{l} / ndatas +...
 		     	    (LAMBDA * W{l}) ; % the paritial derivative of W
-	    bgrads{l} = db{l} / ninstancess;
+	    bgrads{l} = db{l} / ndatas;
 	    gradW = [gradW ; Wgrads{l}(:)];
 	    gradb = [gradb ; bgrads{l}(:)];
 	end
@@ -52,8 +66,8 @@ end
 
 function dJ = softmaxDeriv(inputSize ,theta, numClasses,...
 							 data, hypothesis, labels)
-	ninstancess = size(data, 2);
-	groundTruth = full(sparse(labels, 1:ninstancess, 1));
+	ndatas = size(data, 2);
+	groundTruth = full(sparse(labels, 1:ndatas, 1));
 
 	% compute cost(theta)
 	% compute hTheta(x), vectorized
@@ -63,7 +77,7 @@ function dJ = softmaxDeriv(inputSize ,theta, numClasses,...
 	%M = bsxfun(@minus, M, median(M));
 
 	hTheta = bsxfun(@rdivide, M, sum(M));
-		groundTruth = full(sparse(labels, 1:ninstancess, 1));
+		groundTruth = full(sparse(labels, 1:ndatas, 1));
 
 	dJ = theta' * (groundTruth - hTheta);
 end

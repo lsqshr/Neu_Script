@@ -1,8 +1,8 @@
-function deriv = softmaxDeriv(ninstancess, theta, hypothesis, labels)
+function deriv = softmaxDeriv(ndatas, theta, hypothesis, labels)
 
-ninstancess = size(data, 2);
+ndatas = size(data, 2);
 
-groundTruth = full(sparse(labels, 1:ninstancess, 1));
+groundTruth = full(sparse(labels, 1:ndatas, 1));
 
 % compute gradients
 prob = groundTruth - hypothesis;
