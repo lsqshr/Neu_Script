@@ -25,24 +25,19 @@ function deepTrain(lhidden)
 
 		model = bioSparseTrain(hiddenSize, inputs, 0.05, 0.0001, 3, 400, false, false);
 
-		% extract the W(1) and b(1) from the theta vector
-		% W{i} = reshape(model.theta(1 : hiddenSize * visibleSize), hiddenSize, visibleSize); 
-		% b{i} = model.theta(2 * hiddenSize * visibleSize + 1 : 2 * hiddenSize * visibleSize + hiddenSize);
 		T{i} = model.theta;
 	end
 
 	% train softmax parameters using the features from the last unsupervised layer
-	[acc, softmaxModel] = softmax(1, model); % when set nfold to 1, no test data is splitted disp 'softmax train done';
+	disp 'start to train the softmax using a{n - 1}';
+	[acc, softmaxModel] = softmax(1, model, 4, 1e-4, labels); % when set nfold to 1, no test data is splitted disp 'softmax train done';
 
-	% concat the whole network from each layer together 
-	% fine-tune!!!
-	%finetune(T, softmaxModel, size(data, 1),...
-	%		 lhidden, 0.05, 0.0001, 3, data, labels);
-
-	%  Use minFunc to minimize the function
-	addpath ../sparseAutoencoder/minFunc/
+	% concat the whole network from each layer together for funetune
+	% fine tune: using the result we derived from the softmax regression to adjust parameters
+	% Use minFunc to minimize the function
+	addpath ../sparseAutoencoder/minFunc/;
 	options.Method = 'lbfgs'; 
-	options.maxIter = 200;	  % Maximum number of iterations of L-BFGS to run 
+	options.maxIter = 400;	  % Maximum number of iterations of L-BFGS to run 
 
 	thetaW = [];
 	thetaB = [];
@@ -53,22 +48,25 @@ function deepTrain(lhidden)
 		if i == 1	
 			visibleSize = size(data, 1);
 		else
-			visibleSize = lhidden{i - 1};
+			visibleSize = lhidden(i - 1);
 		end
 
 		W = T{i}(1 : hiddenSize * visibleSize);
 		b = T{i}(2 * hiddenSize * visibleSize + 1 :...
 						 2 * hiddenSize * visibleSize + hiddenSize);
+
 		thetaW = [thetaW ; W];
 		thetaB = [thetaB ; b];
 	end
 
 	theta = [thetaW ; thetaB];
 	lenUnsTheta = length(theta);
-
+	disp 'fine-tuning';
 	[opttheta, cost] = minFunc( @(x) finetune(x, lenUnsTheta, softmaxModel, size(data, 1),...
 									 lhidden, 0.05, 0.0001, 3, data, labels), ...
 	  	                             theta, options);
+
+	model.theta = opttheta;
 
 	% grab random data from the initial dataset and feedforward the whole network
 	% and observe the accuracy

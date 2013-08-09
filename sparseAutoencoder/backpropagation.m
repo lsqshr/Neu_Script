@@ -10,7 +10,8 @@ function [dW, db] = backpropagation(labels, W,...
 
     % first layer
     errterms = cell(nlayer, 1);
-    errterms{nlayer} = errfun(hypothesis, labels);
+    sigPrime = hypothesis .* (1 - hypothesis);
+    errterms{nlayer} = -errfun(hypothesis, labels) .* sigPrime;
 
     % hidden layers
     for l = (nlayer - 1): -1 : 2

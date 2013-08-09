@@ -1,13 +1,7 @@
-function [acc, softmaxModel] = softmax(nfold, model)
+function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels)
     addpath ../softmax/
     addpath ../dataset/
-    %load model;
     load biodata;
-
-    softmaxModel = 0;
-
-    numClasses = 4;     % Number of classes (MNIST images fall into 10 classes)
-    lambda = 1e-4; % Weight decay parameter
 
     %split data and labels for testing
     inputData = model.hiddenFeatures;
@@ -23,6 +17,8 @@ function [acc, softmaxModel] = softmax(nfold, model)
         segsize = round(ndata / nfold);
         % grab the indices of test data and training data
         testidx = [];
+
+        % when 1 fold, we just train without spliting the data
         if nfold ~= 1
             if i == nfold
                 testidx = idx((i - 1) * segsize + 1 : end);
@@ -31,14 +27,15 @@ function [acc, softmaxModel] = softmax(nfold, model)
             end
             testData = inputData(:, testidx);
             testLabels = labels(testidx);
-            trainidx = intersect(idx, testidx);
+            trainidx = setdiff(idx, testidx);
             trainData = inputData(:, trainidx);
-            labels = data.labels;
             trainLabels = labels(trainidx);
+            assert(size(trainData, 2) == size(trainLabels, 1));
+            assert(size(testData, 2) == size(testLabels, 1));
         else
             trainData = inputData;
-            trainLabels = data.labels;
-
+            trainLabels = labels;
+            assert(size(trainData, 2) == size(trainLabels, 1));
         end
 
 
@@ -84,14 +81,11 @@ function [acc, softmaxModel] = softmax(nfold, model)
         end
         %%======================================================================
         %% STEP 4: Learning parameters
-        %
-        %  Once you have verified that your gradients are correct, 
-        %  you can start training your softmax regression code using softmaxTrain
-        %  (which uses minFunc).
 
         options.maxIter = 400;
+        disp({'training using ', size(trainData, 2) , ' instances'});
         softmaxModel = softmaxTrain(inputSize, numClasses, lambda, ...
-                                    inputData, trainLabels, options);
+                                    trainData, trainLabels, options);
                                   
         % Although we only use 100 iterations here to train a classifier for the 
         % MNIST data set, in practice, training for more iterations is usually
@@ -99,19 +93,11 @@ function [acc, softmaxModel] = softmax(nfold, model)
 
         %%======================================================================
         %% STEP 5: Testing
-        %
-        %  You should now test your model against the test images.
-        %  To do this, you will first need to write softmaxPredict
-        %  (in softmaxPredict.m), which should return predictions
-        %  given a softmax model and the input data.
-
-        %labels(labels==0) = 10; % Remap 0 to 10
 
         if nfold == 1
             continue
         end
 
-        % You will have to implement softmaxPredict in softmaxPredict.m
         [~, pred] = softmaxPredict(softmaxModel, testData);
 
         acc = mean(testLabels(:) == pred(:));

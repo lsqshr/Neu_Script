@@ -95,7 +95,6 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, M
 
   if VISUAL == true
   W1 = reshape(opttheta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-  %disp(W1);
   displayNetwork(W1, 12); 
 
   print -djpeg weights.jpg   % save the visualization to a file 
