@@ -1,4 +1,4 @@
-function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels)
+function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels, softmaxModel, trained)
     addpath ../softmax/
     addpath ../dataset/
     load biodata;
@@ -82,11 +82,13 @@ function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels)
         %%======================================================================
         %% STEP 4: Learning parameters
 
-        options.maxIter = 400;
-        disp({'training using ', size(trainData, 2) , ' instances'});
-        softmaxModel = softmaxTrain(inputSize, numClasses, lambda, ...
-                                    trainData, trainLabels, options);
-                                  
+        if ~trained
+            options.maxIter = 400;
+            disp({'training using ', size(trainData, 2) , ' instances'});
+            softmaxModel = softmaxTrain(inputSize, numClasses, lambda, ...
+                                        trainData, trainLabels, options);
+        end                
+        
         % Although we only use 100 iterations here to train a classifier for the 
         % MNIST data set, in practice, training for more iterations is usually
         % beneficial.

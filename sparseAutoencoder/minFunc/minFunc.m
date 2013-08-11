@@ -15,12 +15,12 @@ function [x,f,exitflag,output] = minFunc(funObj,x0,options,varargin)
 %   - 'bb': Barzilai and Borwein Gradient
 %       (uses only previous step)
 %   - 'cg': Non-Linear Conjugate Gradient
-%       (uses only previous step and a vector beta)
+%       (uses only previous step and a vector BETA)
 %   - 'scg': Scaled Non-Linear Conjugate Gradient
-%       (uses previous step and a vector beta, 
+%       (uses previous step and a vector BETA, 
 %           and Hessian-vector products to initialize line search)
 %   - 'pcg': Preconditionined Non-Linear Conjugate Gradient
-%       (uses only previous step and a vector beta, preconditioned version)
+%       (uses only previous step and a vector BETA, preconditioned version)
 %   - 'lbfgs': Quasi-Newton with Limited-Memory BFGS Updating
 %       (default: uses a predetermined nunber of previous steps to form a 
 %           low-rank Hessian approximation)
@@ -456,33 +456,33 @@ for i = 1:maxIter
 
                 if cgUpdate == 0
                     % Fletcher-Reeves
-                    beta = (g'*g)/(gotgo);
+                    BETA = (g'*g)/(gotgo);
                 elseif cgUpdate == 1
                     % Polak-Ribiere
-                    beta = (g'*(g-g_old)) /(gotgo);
+                    BETA = (g'*(g-g_old)) /(gotgo);
                 elseif cgUpdate == 2
                     % Hestenes-Stiefel
-                    beta = (g'*(g-g_old))/((g-g_old)'*d);
+                    BETA = (g'*(g-g_old))/((g-g_old)'*d);
                 else
                     % Gilbert-Nocedal
-                    beta_FR = (g'*(g-g_old)) /(gotgo);
-                    beta_PR = (g'*g-gtgo)/(gotgo);
-                    beta = max(-beta_FR,min(beta_PR,beta_FR));
+                    BETA_FR = (g'*(g-g_old)) /(gotgo);
+                    BETA_PR = (g'*g-gtgo)/(gotgo);
+                    BETA = max(-BETA_FR,min(BETA_PR,BETA_FR));
                 end
 
-                d = -g + beta*d;
+                d = -g + BETA*d;
 
                 % Restart if not a direction of sufficient descent
                 if g'*d > -tolX
                     if debug
                         fprintf('Restarting CG\n');
                     end
-                    beta = 0;
+                    BETA = 0;
                     d = -g;
                 end
 
                 % Old restart rule:
-                %if beta < 0 || abs(gtgo)/(gotgo) >= 0.1 || g'*d >= 0
+                %if BETA < 0 || abs(gtgo)/(gotgo) >= 0.1 || g'*d >= 0
 
             end
             g_old = g;
@@ -516,23 +516,23 @@ for i = 1:maxIter
 
                 if cgUpdate == 0
                     % Preconditioned Fletcher-Reeves
-                    beta = (g'*s)/(g_old'*s_old);
+                    BETA = (g'*s)/(g_old'*s_old);
                 elseif cgUpdate < 3
                     % Preconditioned Polak-Ribiere
-                    beta = (g'*(s-s_old))/(g_old'*s_old);
+                    BETA = (g'*(s-s_old))/(g_old'*s_old);
                 else
                     % Preconditioned Gilbert-Nocedal
-                    beta_FR = (g'*s)/(g_old'*s_old);
-                    beta_PR = (g'*(s-s_old))/(g_old'*s_old);
-                    beta = max(-beta_FR,min(beta_PR,beta_FR));
+                    BETA_FR = (g'*s)/(g_old'*s_old);
+                    BETA_PR = (g'*(s-s_old))/(g_old'*s_old);
+                    BETA = max(-BETA_FR,min(BETA_PR,BETA_FR));
                 end
-                d = s + beta*d;
+                d = s + BETA*d;
 
                 if g'*d > -tolX
                     if debug
                         fprintf('Restarting CG\n');
                     end
-                    beta = 0;
+                    BETA = 0;
                     d = s;
                 end
 

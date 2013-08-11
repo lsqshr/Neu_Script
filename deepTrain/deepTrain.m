@@ -1,4 +1,9 @@
 function deepTrain(lhidden)
+
+	LAMBDA = 0.0001;
+	BETA = 3;
+	sparsityParam = 0.05;
+
 	% lhidden: the list of number of each hidden layer units
 
 	% train each auto encoder one at a time
@@ -23,14 +28,15 @@ function deepTrain(lhidden)
 		hiddenSize = lhidden(i);
 		visibleSize = size(inputs, 1);
 
-		model = bioSparseTrain(hiddenSize, inputs, 0.05, 0.0001, 3, 400, false, false);
+		model = bioSparseTrain(hiddenSize, inputs, sparsityParam, LAMBDA, BETA, 400, false, false);
 
 		T{i} = model.theta;
 	end
 
 	% train softmax parameters using the features from the last unsupervised layer
 	disp 'start to train the softmax using a{n - 1}';
-	[acc, softmaxModel] = softmax(1, model, 4, 1e-4, labels); % when set nfold to 1, no test data is splitted disp 'softmax train done';
+	% when set nfold to 1, no test data is splitted disp 'softmax train done';
+	[acc, softmaxModel] = softmax(1, model, 4, LAMBDA, labels, 0, false); 
 
 	% concat the whole network from each layer together for funetune
 	% fine tune: using the result we derived from the softmax regression to adjust parameters
@@ -63,14 +69,19 @@ function deepTrain(lhidden)
 	lenUnsTheta = length(theta);
 	disp 'fine-tuning';
 	[opttheta, cost] = minFunc( @(x) finetune(x, lenUnsTheta, softmaxModel, size(data, 1),...
-									 lhidden, 0.05, 0.0001, 3, data, labels), ...
+									 lhidden, sparsityParam, LAMBDA, BETA, data, labels), ...
 	  	                             theta, options);
 
-	model.theta = opttheta;
 
+	model.theta = opttheta;
+	[W, b] = extractParam(theta, lhidden, size(data, 1));
 	% grab random data from the initial dataset and feedforward the whole network
 	% and observe the accuracy
+	% for the unsupervised neural network(sparse) we need to
+	% feedforward all the data before the backpropagatlion
+	[cost, a, hp] = preFeedforward(W, b, data, LAMBDA, sparsityParam, ...
+								   BETA, data, @feedforward, @distance, false, false);
+
+	model.hiddenFeatures = a{end};
+	[acc, softmaxModel] = softmax(10, model, 4, LAMBDA, labels, softmaxModel, true); 
 end
-
-
-

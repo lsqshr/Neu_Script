@@ -20,9 +20,9 @@ gamma = max(abs(diag(A)));
 xi = max(max(abs(setdiag(A,0))));
 delta = mu*max(gamma+xi,1);
 if n > 1
-    beta = sqrt(max([gamma xi/sqrt(n^2-1) mu]));
+    BETA = sqrt(max([gamma xi/sqrt(n^2-1) mu]));
 else
-    beta = sqrt(max([gamma mu]));
+    BETA = sqrt(max([gamma mu]));
 end
 
 for j = 1:n
@@ -51,7 +51,7 @@ for j = 1:n
     if j < n && j > 1
         theta = max(abs(c(j+1:n,j)));
     end
-    d(j) = max([abs(c(j,j)) (theta/beta)^2 delta]);
+    d(j) = max([abs(c(j,j)) (theta/BETA)^2 delta]);
     if j < n
         for i = j+1:n
             c(i,i) = c(i,i) - (c(i,j)^2)/d(j);

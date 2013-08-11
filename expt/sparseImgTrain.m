@@ -12,7 +12,7 @@ sparsityParam = 0.05;   % desired average activation of the hidden units.
 		     %  in the lecture notes). 
 lambda = 0.0001;     % weight decay parameter       
 ndata = 10000;
-beta = 3;            % weight of sparsity penalty term       
+BETA = 3;            % weight of sparsity penalty term       
 DEBUG = false;
 
 %%======================================================================
@@ -32,7 +32,7 @@ theta = initializeParameters(hiddenSize, visibleSize);
 %% STEP 2: Implement sparseAutoencoderCost
 
 [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
-                                     sparsityParam, beta, patches);
+                                     sparsityParam, BETA, patches);
 
 %%======================================================================
 %% STEP 3: Gradient Checking
@@ -43,7 +43,7 @@ disp('going to compute numerical gradient');
 % check your cost function and derivative calculations
 % for the sparse autoencoder.  
 numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
-                                                  sparsityParam, beta, ...
+                                                  sparsityParam, BETA, ...
                                                    patches), theta);
 
 % Compare numerically computed gradients with the ones obtained from backpropagation
@@ -78,7 +78,7 @@ options.display = 'on';
 [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                    visibleSize, hiddenSize, ...
                                    lambda, sparsityParam, ...
-                                   beta, patches), ...
+                                   BETA, patches), ...
                               theta, options);
 %%======================================================================
 %% STEP 5: Visualization 

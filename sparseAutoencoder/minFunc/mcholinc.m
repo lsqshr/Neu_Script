@@ -3,14 +3,14 @@ function [R,tau] = mcholinc(H,verbose)
 
 p = size(H,1);
 
-beta = norm(H,'fro');
+BETA = norm(H,'fro');
 if min(diag(H)) > 1e-12
     tau = 0;
 else
     if verbose
         fprintf('Small Value on Diagonal, Adjusting Hessian\n');
     end
-    tau = max(beta/2,1e-12);
+    tau = max(BETA/2,1e-12);
 end
 while 1
     [R,posDef] = chol(H+tau*eye(p));
@@ -20,6 +20,6 @@ while 1
         if verbose
             fprintf('Cholesky Failed, Adjusting Hessian\n');
         end
-        tau = max(2*tau,beta/2);
+        tau = max(2*tau,BETA/2);
     end
 end

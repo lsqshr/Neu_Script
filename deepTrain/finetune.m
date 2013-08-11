@@ -4,34 +4,7 @@ function [cost, grad] = finetune(theta, lenUnsTheta, softmaxModel,...
 
 	addpath '../sparseAutoencoder/';
 
-	% get the number of digits in theta is for W
-	s = 0;
-	for i = 1 : length(lhidden)
-		if i == 1
-			s = s + size(data, 1) * lhidden(i);
-		else
-			s = s + lhidden(i) * lhidden(i - 1);
-		end
-	end
-
-	bstart = s + 1;
-	bTheta = theta(bstart : end);
-
-	for i = 1 : length(lhidden) 
-		hiddenSize = lhidden(i);
-
-		if i == 1	
-			visibleSize = size(data, 1);
-		else
-			visibleSize = lhidden(i - 1);
-		end
-
-		W{i} = reshape(theta((hiddenSize * visibleSize) * (i - 1) + 1 :...
-								 hiddenSize * visibleSize * i),...
-								 hiddenSize, visibleSize);
-		b{i} = bTheta((i - 1) * hiddenSize + 1 : ...
-					  i * hiddenSize);
-	end
+	[W, b] = extractParam(theta, lhidden, size(data, 1));
 
 	ndatas = size(data, 2);
 	nlayer = length(W) + 1;

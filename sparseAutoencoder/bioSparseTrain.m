@@ -1,4 +1,4 @@
-function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, MAXITER, DEBUG, VISUAL)
+function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, MAXITER, DEBUG, VISUAL)
   %%======================================================================
   %% STEP 0: Here we provide the relevant parameters values that will
   %  allow your sparse autoencoder to get good filters; you do not need to 
@@ -29,7 +29,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, M
   %% STEP 2: Implement sparseAutoencoderCost
 
   [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
-                                       sparsityParam, beta, data);
+                                       sparsityParam, BETA, data);
 
   %%======================================================================
   %% STEP 3: Gradient Checking
@@ -40,7 +40,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, M
   % check your cost function and derivative calculations
   % for the sparse autoencoder.  
   numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
-                                                    sparsityParam, beta, ...
+                                                    sparsityParam, BETA, ...
                                                      data), theta);
 
   % Compare numerically computed gradients with the ones obtained from backpropagation
@@ -76,11 +76,11 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, beta, M
   [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                      visibleSize, hiddenSize, ...
                                      lambda, sparsityParam, ...
-                                     beta, data), ...
+                                     BETA, data), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance
-  features = hiddenFeatures(theta, hiddenSize, visibleSize, data, lambda, beta);
+  features = hiddenFeatures(theta, hiddenSize, visibleSize, data, lambda, BETA);
   % store a{2} and theta to a file
   model.hiddenFeatures = features;
   model.theta = theta;

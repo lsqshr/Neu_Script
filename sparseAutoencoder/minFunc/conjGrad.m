@@ -71,8 +71,8 @@ while res > optTol & k < maxIter & ~done
     end
     
     ry_new = r'*y;
-    beta = ry_new/ry;
-    p = -y + beta*p;
+    BETA = ry_new/ry;
+    p = -y + BETA*p;
     k = k + 1;
 
     % Update variables
