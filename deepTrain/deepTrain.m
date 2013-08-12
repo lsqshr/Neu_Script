@@ -1,8 +1,9 @@
-function deepTrain(lhidden)
+function deepTrain(lhidden, datasetName)
 
 	LAMBDA = 0.0001;
 	BETA = 3;
 	sparsityParam = 0.05;
+
 
 	% lhidden: the list of number of each hidden layer units
 
@@ -11,9 +12,21 @@ function deepTrain(lhidden)
 	% use the hidden features as the inputs for the following layer
 	% the parameters will be fine tuned using softmax
 	addpath ../expt/
-	addpath ../dataset/loader;
 	addpath ../sparseAutoencoder;
-	[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
+	if strcmp(datasetName, 'bio')
+		addpath ../dataset/loader;
+		[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
+		numClasses = 4;
+	elseif strcmp(datasetName, 'MNIST')
+		addpath ../dataset/MNIST
+		data = loadMNISTImages('train-images.idx3-ubyte');
+		labels = loadMNISTLabels('train-labels.idx1-ubyte');
+		data = data(:,1 : 1000);
+		labels = labels(1: 1000);
+		labels(labels==0) = 10; % Remap 0 to 10
+		numClasses = 10;
+	end
+
 	W = cell(size(lhidden));
 	b = cell(size(lhidden));
 	T = cell(size(lhidden));
@@ -36,7 +49,7 @@ function deepTrain(lhidden)
 	% train softmax parameters using the features from the last unsupervised layer
 	disp 'start to train the softmax using a{n - 1}';
 	% when set nfold to 1, no test data is splitted disp 'softmax train done';
-	[acc, softmaxModel] = softmax(1, model, 4, LAMBDA, labels, 0, false); 
+	[acc, softmaxModel] = softmax(1, model, numClasses, LAMBDA, labels, 0, false); 
 
 	% concat the whole network from each layer together for funetune
 	% fine tune: using the result we derived from the softmax regression to adjust parameters

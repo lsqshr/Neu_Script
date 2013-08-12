@@ -12,7 +12,7 @@ function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels,
     ntest = round(ndata / nfold);
     idx = randperm(ndata);
 
-    sumacc = 0;
+    sumacc = zeros(nfold);
     for i = 1 : nfold
         segsize = round(ndata / nfold);
         % grab the indices of test data and training data
