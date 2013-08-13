@@ -16,7 +16,7 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 								   BETA, data, @feedforward, @distance, false, true);
 
     % use backpropagation to get two partial derivatives
-    [dW, db] = backpropagation(data, W, b, a, hp, BETA, sparsityParam, ...
+    [dW, db] = backpropagation(data, W, a, hp, BETA, sparsityParam, ...
 						       @(labels, hypothesis)outputLayerCost(labels, hypothesis));
 
 	Wgrads = cell(1, nlayer - 1);
@@ -36,7 +36,6 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 
 end
     
-function errterm = outputLayerCost(hypothesis, labels)
-	%sigPrime = (hypothesis .* (1 - hypothesis));
-    errterm = labels - hypothesis;% .* sigPrime;
+function errterm = outputLayerCost(labels, hypothesis)
+    errterm = labels - hypothesis;
 end

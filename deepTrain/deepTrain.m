@@ -1,8 +1,10 @@
 function deepTrain(lhidden, datasetName)
 
-	LAMBDA = 0.0001;
-	BETA = 3;
-	sparsityParam = 0.05;
+LAMBDA = 0.0001;
+BETA = 3;
+% LAMBDA = 0;
+% BETA = 0;
+sparsityParam = 0.05;
 
 
 	% lhidden: the list of number of each hidden layer units
@@ -27,8 +29,6 @@ function deepTrain(lhidden, datasetName)
 		numClasses = 10;
 	end
 
-	W = cell(size(lhidden));
-	b = cell(size(lhidden));
 	T = cell(size(lhidden));
 
 	for i = 1 : length(lhidden)
@@ -39,17 +39,16 @@ function deepTrain(lhidden, datasetName)
 		end
 
 		hiddenSize = lhidden(i);
-		visibleSize = size(inputs, 1);
-
 		model = bioSparseTrain(hiddenSize, inputs, sparsityParam, LAMBDA, BETA, 400, false, false);
 
 		T{i} = model.theta;
 	end
 
 	% train softmax parameters using the features from the last unsupervised layer
-	disp 'start to train the softmax using a{n - 1}';
+	disp 'start to train the softmax using a{n - 1}'
+    softmaxModel.numClasses = numClasses;
 	% when set nfold to 1, no test data is splitted disp 'softmax train done';
-	[acc, softmaxModel] = softmax(1, model, numClasses, LAMBDA, labels, 0, false); 
+	[~, softmaxModel] = softmax(1, model, LAMBDA, labels, softmaxModel, false); 
 
 	% concat the whole network from each layer together for funetune
 	% fine tune: using the result we derived from the softmax regression to adjust parameters
@@ -78,23 +77,21 @@ function deepTrain(lhidden, datasetName)
 		thetaB = [thetaB ; b];
 	end
 
-	theta = [thetaW ; thetaB];
-	lenUnsTheta = length(theta);
+	opttheta = [thetaW ; thetaB];
 	disp 'fine-tuning';
-	[opttheta, cost] = minFunc( @(x) finetune(x, lenUnsTheta, softmaxModel, size(data, 1),...
-									 lhidden, sparsityParam, LAMBDA, BETA, data, labels), ...
-	  	                             theta, options);
+	[opttheta, ~] = minFunc( @(x) finetune(x, softmaxModel, ...
+							lhidden, sparsityParam, LAMBDA, BETA, data, labels), ...
+		                    opttheta, options);
 
 
 	model.theta = opttheta;
-	[W, b] = extractParam(theta, lhidden, size(data, 1));
+	[W, b] = extractParam(opttheta, lhidden, size(data, 1));
 	% grab random data from the initial dataset and feedforward the whole network
 	% and observe the accuracy
 	% for the unsupervised neural network(sparse) we need to
 	% feedforward all the data before the backpropagatlion
-	[cost, a, hp] = preFeedforward(W, b, data, LAMBDA, sparsityParam, ...
-								   BETA, data, @feedforward, @distance, false, false);
+	[y, ~, ~] = feedforward(data, W, b);
 
-	model.hiddenFeatures = a{end};
-	[acc, softmaxModel] = softmax(10, model, 4, LAMBDA, labels, softmaxModel, true); 
+	model.hiddenFeatures = y;
+    softmax(10, model, LAMBDA, labels, softmaxModel, true); 
 end

@@ -1,22 +1,18 @@
-% feedforward through all thypothesishe data to compute the average
+% feedforward through all tyhe data to compute the average
 % activations and gives out the current SEC
 function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, labels, feedfun, costfun, ignoreBETA, compuCost)
-    nlayer = length(W) + 1;
-    ndata = size(data, 2);
-
     %% do feedforward on all of the data and get the cost
-    ndata = size(data, 2);
     nlayer = length(W) + 1;
     cost = 0;
 
     %% feedforward m data by vectorization
-    [hypothesis, a, hp] = feedfun(data, W, b);
+    [y, a, hp] = feedfun(data, W, b);
 
     %% compute J(W,b)
     % disp(size(labels));
-    % disp(size(hypothesis));
+    % disp(size(y));
     if compuCost
-        cost = costfun(labels, hypothesis);
+        cost = costfun(labels, y);
 
         %% add weight decay
        	s = 0;

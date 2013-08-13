@@ -9,7 +9,7 @@ function [y, a, hp] =  feedforward(data, W, b)
     a = cell(nlayer, 1);
     z{1} = data; % the first layer is just the inputs
     a{1} = data; 
-    hp = cell(nlayer);
+    hp = cell(nlayer, 1);
 
     for l = 1 : nlayer - 1
         %disp([l size(W{l}) size(a{l}) size(b{l})]);

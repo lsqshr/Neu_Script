@@ -1,22 +1,19 @@
-function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels, softmaxModel, trained)
+function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxModel, trained)
     addpath ../softmax/
     addpath ../dataset/
-    load biodata;
+    %load biodata;
 
     %split data and labels for testing
     inputData = model.hiddenFeatures;
     inputSize = size(inputData, 1); % Size of input vector 
     ndata = size(inputData, 2);
-
+    numClasses = softmaxModel.numClasses;
     % split a subset of input data as test data
-    ntest = round(ndata / nfold);
     idx = randperm(ndata);
-
-    sumacc = zeros(nfold);
+    sumacc = 0;
     for i = 1 : nfold
         segsize = round(ndata / nfold);
         % grab the indices of test data and training data
-        testidx = [];
 
         % when 1 fold, we just train without spliting the data
         if nfold ~= 1
@@ -45,10 +42,6 @@ function [acc, softmaxModel] = softmax(nfold, model, numClasses, lambda, labels,
             inputData = randn(8, 100);
             labels = randi(10, 100, 1);
         end
-
-        % Randomly initialise theta
-        theta = 0.005 * randn(numClasses * inputSize, 1);
-
 
         if DEBUG
         %%======================================================================

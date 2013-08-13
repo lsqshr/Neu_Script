@@ -1,5 +1,5 @@
-function [cost, grad] = finetune(theta, lenUnsTheta, softmaxModel,...
-								 visibleSize, lhidden, LAMBDA,...
+function [cost, grad] = finetune(theta, softmaxModel,...
+								 lhidden, LAMBDA,...
 								 sparsityParam, BETA, data, labels)
 
 	addpath '../sparseAutoencoder/';
@@ -18,9 +18,8 @@ function [cost, grad] = finetune(theta, lenUnsTheta, softmaxModel,...
     % use backpropagation to get two partial derivatives
     [dW, db] = backpropagation(labels', W, b, a,...
 	     hp, BETA, sparsityParam,...
-	      @(hypothesis, labels) softmaxDeriv(...
-	      				lhidden(length(lhidden)), softmaxModel.optTheta, softmaxModel.numClasses,...
-	      				a{length(lhidden) + 1}, hypothesis,labels));
+	      @(hypothesis, labels) softmaxDeriv(softmaxModel.optTheta,...
+                                             hypothesis, labels));
 
 	Wgrads = cell(1, nlayer - 1);
 	bgrads = cell(1, nlayer - 1);
@@ -37,20 +36,11 @@ function [cost, grad] = finetune(theta, lenUnsTheta, softmaxModel,...
 	grad = [gradW ; gradb];
 end
 
-function dJ = softmaxDeriv(inputSize ,theta, numClasses,...
-							 data, hypothesis, labels)
-	ndatas = size(data, 2);
-	groundTruth = full(sparse(labels, 1:ndatas, 1));
-
+function dJ = softmaxDeriv(theta, hypothesis, labels)
 	% compute cost(theta)
 	% compute hTheta(x), vectorized
-	M = exp(theta * data);
-
-	% tried to avoid overflow by adding the following line, while it creates -Inf sometimes
-	%M = bsxfun(@minus, M, median(M));
-
-	hTheta = bsxfun(@rdivide, M, sum(M));
-		groundTruth = full(sparse(labels, 1:ndatas, 1));
-
-	dJ = theta' * (groundTruth - hTheta);
+    labels = full(sparse(labels, 1 : length(labels), 1));
+	M = exp(theta * hypothesis);
+    hypothesis = bsxfun(@rdivide, M, sum(M));
+    dJ = theta' * (labels - hypothesis);
 end
