@@ -10,16 +10,27 @@ function [dW, db] = backpropagation(labels, W,...
 
     % first layer
     errterms = cell(nlayer, 1);
-    sigPrime = a{nlayer} .* (1 - a{nlayer});
-    errterms{nlayer} = -errfun(labels, a{nlayer}) .* sigPrime;
+    if BETA == 0
+        output = a{nlayer + 1};
+    else
+        output = a{nlayer};
+    end
+        sigPrime = output .* (1 - output);
+        
+    errterms{nlayer} = -errfun(labels, output) .* sigPrime;
+    
     
     % hidden layers
     for l = (nlayer - 1): -1 : 2
         sigPrime = (a{l} .* (1 - a{l}));
-        sparsityDelta = -(sparsityParam ./ hp{l}) +...
-            (1 - sparsityParam) ./ (1 - hp{l});
-        errterms{l} = ((W{l}' * errterms{l + 1}) +...
-            BETA * repmat(sparsityDelta, 1, ndata)) .* sigPrime;
+        if BETA == 0
+            sparsityterm = 0;
+        else
+            sparsityDelta = -(sparsityParam ./ hp{l}) +...
+                            (1 - sparsityParam) ./ (1 - hp{l});
+            sparsityterm = BETA * repmat(sparsityDelta, 1, ndata);
+        end
+        errterms{l} = ((W{l}' * errterms{l + 1}) + sparsityterm) .* sigPrime;
     end
 
     dW = cell(nlayer - 1, 1);

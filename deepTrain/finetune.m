@@ -2,12 +2,12 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 								 lhidden, LAMBDA,...
 								 sparsityParam, BETA, data, labels)
 
-	addpath '../sparseAutoencoder/';
+	addpath ../sparseAutoencoder/;
 
 	[W, b] = extractParam(theta, lhidden, size(data, 1));
 
 	ndatas = size(data, 2);
-	nlayer = length(W) + 1;
+	nlayer = length(W) + 2;
 
 	% for the unsupervised neural network(sparse) we need to
 	% feedforward all the data before the backpropagatlion
@@ -16,10 +16,8 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 									 BETA, labels, softmaxModel);
 
     % use backpropagation to get two partial derivatives
-    [dW, db] = backpropagation(labels', W, b, a,...
-	     hp, BETA, sparsityParam,...
-	      @(hypothesis, labels) softmaxDeriv(softmaxModel.optTheta,...
-                                             hypothesis, labels));
+    [dW, db] = backpropagation(labels', W, a,...
+	     hp, 0, 0,@(hypothesis, labels) softmaxDeriv(softmaxModel.optTheta,hypothesis, labels));
 
 	Wgrads = cell(1, nlayer - 1);
 	bgrads = cell(1, nlayer - 1);
@@ -39,7 +37,7 @@ end
 function dJ = softmaxDeriv(theta, hypothesis, labels)
 	% compute cost(theta)
 	% compute hTheta(x), vectorized
-    labels = full(sparse(labels, 1 : length(labels), 1));
+    labels = full(sparse(labels, 1 : length(labels, 1), 1));
 	M = exp(theta * hypothesis);
     hypothesis = bsxfun(@rdivide, M, sum(M));
     dJ = theta' * (labels - hypothesis);

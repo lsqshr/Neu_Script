@@ -1,10 +1,11 @@
-function deepTrain(lhidden, datasetName)
+function y = deepTrain(lhidden, datasetName, digged_features)
 
-LAMBDA = 0.0001;
-BETA = 3;
-% LAMBDA = 0;
-% BETA = 0;
-sparsityParam = 0.05;
+    LAMBDA = 0.0001;
+    BETA = 3;
+    % LAMBDA = 0;
+    % BETA = 0;
+    sparsityParam = 0.05;
+    DEBUG = false;
 
 
 	% lhidden: the list of number of each hidden layer units
@@ -13,8 +14,9 @@ sparsityParam = 0.05;
 	% store the parameters in a matrix T, 
 	% use the hidden features as the inputs for the following layer
 	% the parameters will be fine tuned using softmax
-	addpath ../expt/
+	addpath ../expt/;
 	addpath ../sparseAutoencoder;
+    addpath ../softmax/;
 	if strcmp(datasetName, 'bio')
 		addpath ../dataset/loader;
 		[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
@@ -23,10 +25,16 @@ sparsityParam = 0.05;
 		addpath ../dataset/MNIST
 		data = loadMNISTImages('train-images.idx3-ubyte');
 		labels = loadMNISTLabels('train-labels.idx1-ubyte');
-		data = data(:,1 : 1000);
-		labels = labels(1: 1000);
+		data = data(:,1 : 10);
+		labels = labels(1: 10);
 		labels(labels==0) = 10; % Remap 0 to 10
 		numClasses = 10;
+    elseif strcmp(datasetName, 'given')
+        data = digged_features;
+        numClasses = 10;
+        labels = loadMNISTLabels('train-labels.idx1-ubyte');
+        labels = labels(1:10);
+        labels(labels==0) = 10; % Remap 0 to 10
 	end
 
 	T = cell(size(lhidden));
@@ -39,8 +47,8 @@ sparsityParam = 0.05;
 		end
 
 		hiddenSize = lhidden(i);
-		model = bioSparseTrain(hiddenSize, inputs, sparsityParam, LAMBDA, BETA, 400, false, false);
-
+		model = bioSparseTrain(hiddenSize, inputs, ...
+            sparsityParam, LAMBDA, BETA, 400, DEBUG, false);
 		T{i} = model.theta;
 	end
 
@@ -79,9 +87,9 @@ sparsityParam = 0.05;
 
 	opttheta = [thetaW ; thetaB];
 	disp 'fine-tuning';
-	[opttheta, ~] = minFunc( @(x) finetune(x, softmaxModel, ...
-							lhidden, sparsityParam, LAMBDA, BETA, data, labels), ...
-		                    opttheta, options);
+	%[opttheta, ~] = minFunc( @(x) finetune(x, softmaxModel, ...
+	%						lhidden, sparsityParam, LAMBDA, BETA, data, labels), ...
+	%	                    opttheta, options);
 
 
 	model.theta = opttheta;

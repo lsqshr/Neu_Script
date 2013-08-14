@@ -1,6 +1,5 @@
 function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
                                              LAMBDA, sparsityParam, BETA, data)
-	
 
 	W{1} = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
 	W{2} = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
