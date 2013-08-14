@@ -17,7 +17,7 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 
     % use backpropagation to get two partial derivatives
     [dW, db] = backpropagation(labels', W, a,...
-	     hp, 0, 0,@(hypothesis, labels) softmaxDeriv(softmaxModel.optTheta,hypothesis, labels));
+	     hp, 0, 0,@(labels, hypothesis) softmaxDeriv(softmaxModel.optTheta, labels, hypothesis));
 
 	Wgrads = cell(1, nlayer - 1);
 	bgrads = cell(1, nlayer - 1);
@@ -34,11 +34,9 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 	grad = [gradW ; gradb];
 end
 
-function dJ = softmaxDeriv(theta, hypothesis, labels)
+function dJ = softmaxDeriv(theta, labels, hypothesis)
 	% compute cost(theta)
 	% compute hTheta(x), vectorized
-    labels = full(sparse(labels, 1 : length(labels, 1), 1));
-	M = exp(theta * hypothesis);
-    hypothesis = bsxfun(@rdivide, M, sum(M));
-    dJ = theta' * (labels - hypothesis);
+    labels = full(sparse(labels, 1 : length(labels), 1));
+	dJ = theta' * (labels - hypothesis);
 end
