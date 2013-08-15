@@ -1,7 +1,7 @@
 function [cost, grad] = finetune(theta, softmaxModel,...
-								 lhidden, LAMBDA,...
+								 lhidden, LAMBDASM, LAMBDA,...
 								 data, labels)
-
+    LAMBDA = 0; % try not using LAMBDA
 	addpath ../sparseAutoencoder/;
     % split the softTheta from the long one
     softTheta = theta(1 : numel(softmaxModel.optTheta));
@@ -42,8 +42,8 @@ function [cost, grad] = finetune(theta, softmaxModel,...
     %[cost, gradSoft] = softmaxCost(softmaxModel.optTheta, softmaxModel.numClasses, size(a{nlayer}, 1), LAMBDA, a{nlayer}, labels);
     M = size(data, 2);
     groundTruth = full(sparse(labels, 1:M, 1));
-    cost = -1/ndata * groundTruth(:)' * log(a{nlayer + 1}(:)) + LAMBDA/2 * sum(softmaxModel.optTheta(:) .^ 2);
-    gradSoft = -1/ndata * (groundTruth - a{nlayer + 1}) * a{nlayer}' + LAMBDA * softmaxModel.optTheta;
+    cost = -1/ndata * sum(groundTruth(:) .* log(a{nlayer + 1}(:))) + LAMBDASM/2 * sum(softmaxModel.optTheta(:) .^ 2);
+    gradSoft = -1/ndata * (groundTruth - a{nlayer + 1}) * a{nlayer}' + LAMBDASM * softmaxModel.optTheta;
 
     %% regularize only the softmax weights 
     %cost = cost + LAMBDA * 0.5 * sum(sum((softmaxModel.optTheta) .^ 2));

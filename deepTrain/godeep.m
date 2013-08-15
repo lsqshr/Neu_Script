@@ -1,5 +1,6 @@
 function godeep(lhidden, datasetName, numData)
     LAMBDA = 3e-3;
+    LAMBDASM = 1e-4;
     BETA = 3;
     sparsityParam = 0.1;
     DEBUG = false;	
@@ -36,24 +37,25 @@ function godeep(lhidden, datasetName, numData)
     
     %% train the softmax model
     softmaxModel.numClasses = numClasses;
-    [~, softmaxModel] = softmax(1, model, LAMBDA, labels, softmaxModel, false);
+    [~, softmaxModel] = softmax(1, model, LAMBDASM, labels, softmaxModel, false);
     
-    DEBUG = true;
+    DEBUG = false;
     
     %% finetune
-    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDA, data, labels, DEBUG);
+    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, data, labels, DEBUG);
     
     %% restore W and b from finetuned opttheta
-    %debug
-    %opttheta = gatherVector(T, lhidden, size(data, 1));
+    lenSoftTheta = numel(softmaxModel.optTheta);
+    softTheta = opttheta(1 : lenSoftTheta);
+    softmaxModel.optTheta = reshape(softTheta, softmaxModel.numClasses, lhidden(end));
+    theta = opttheta(lenSoftTheta + 1 : end);
+	[W, b] = extractParam(theta, lhidden, size(data, 1));
     
-    
-    [W, b] = extractParam(opttheta, lhidden, size(data, 1));
     [y, ~, ~] = feedforward(data, W, b);
     
     model.hiddenFeatures = y;
     
     %% evaluate the result using 10 fold
-    softmax(10, model, LAMBDA, labels, softmaxModel, true); 
+    softmax(10, model, LAMBDASM, labels, softmaxModel, true); 
    
 end
