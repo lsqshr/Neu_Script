@@ -58,24 +58,33 @@ function godeep(lhidden, datasetName, numData)
     %% evaluate the result using 10 fold
     acc = softmax(10, model, LAMBDASM, labels, softmaxModel, true); 
     
+    disp(lhidden);
+    disp([BETA,LAMBDA, sparsityParam]);
     %% store the current achievement
-    result.dataset = datasetName;
-    result.acc = acc;
-    result.LAMBDA = LAMBDA;
-    result.LAMBDASM = LAMBDASM;
-    result.sparsityParam = sparsityParam;
-    result.BETA = BETA;
-    result.MAXITER = MAXITER;
-    result.lhidden = lhidden;
-    result.time = clock;
+    result{1} = datasetName;
+    result{2} = acc;
+    result{3} = LAMBDA;
+    result{4} = LAMBDASM;
+    result{5} = sparsityParam;
+    result{6} = BETA;
+    result{7} = MAXITER;
+    result{8} = lhidden;
+    result{9} = clock;
+    result{10} = size(data);
     
     %% append the result to the existed list
     if exist('../dataset/results/results.mat', 'file') == 2
-        load('../dataset/results/results.mat');
-        results(end + 1) = result;
+        results = load('../dataset/results/results.mat');
+        results = results.results;
+        idx = results{end};
+        idx = idx + 1;
+        results{idx} = result;
+        results{end} = idx;
         save('../dataset/results/results.mat', 'results');
     else
-        results(1) = result;
+        results = cell(10000, 1);
+        results{1} = result;
+        results{end} = 1;
         save('../dataset/results/results.mat', 'results');
     end
 end
