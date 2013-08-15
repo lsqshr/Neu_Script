@@ -56,6 +56,26 @@ function godeep(lhidden, datasetName, numData)
     model.hiddenFeatures = y;
     
     %% evaluate the result using 10 fold
-    softmax(10, model, LAMBDASM, labels, softmaxModel, true); 
-   
+    acc = softmax(10, model, LAMBDASM, labels, softmaxModel, true); 
+    
+    %% store the current achievement
+    result.dataset = datasetName;
+    result.acc = acc;
+    result.LAMBDA = LAMBDA;
+    result.LAMBDASM = LAMBDASM;
+    result.sparsityParam = sparsityParam;
+    result.BETA = BETA;
+    result.MAXITER = MAXITER;
+    result.lhidden = lhidden;
+    result.time = clock;
+    
+    %% append the result to the existed list
+    if exist('../dataset/results/results.mat', 'file') == 2
+        load('../dataset/results/results.mat');
+        results(end + 1) = result;
+        save('../dataset/results/results.mat', 'results');
+    else
+        results(1) = result;
+        save('../dataset/results/results.mat', 'results');
+    end
 end
