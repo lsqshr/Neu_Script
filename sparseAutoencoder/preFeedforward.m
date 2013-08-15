@@ -1,6 +1,7 @@
 % feedforward through all tyhe data to compute the average
 % activations and gives out the current SEC
-function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, labels, feedfun, costfun, ignoreBETA, compuCost)
+function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA,...
+    labels, feedfun, costfun, ignoreBETA, compuCost)
     %% do feedforward on all of the data and get the cost
     nlayer = length(W) + 1;
     cost = 0;

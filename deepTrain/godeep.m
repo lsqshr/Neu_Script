@@ -1,7 +1,7 @@
 function godeep(lhidden, datasetName, numData)
-    LAMBDA = 0.0001;
+    LAMBDA = 3e-3;
     BETA = 3;
-    sparsityParam = 0.05;
+    sparsityParam = 0.1;
     DEBUG = false;	
     MAXITER = 400;
     
@@ -37,14 +37,16 @@ function godeep(lhidden, datasetName, numData)
     %% train the softmax model
     softmaxModel.numClasses = numClasses;
     [~, softmaxModel] = softmax(1, model, LAMBDA, labels, softmaxModel, false);
-
+    
+    DEBUG = true;
     
     %% finetune
-    %opttheta = gofinetune(T, softmaxModel, lhidden, sparsityParam, LAMBDA, BETA, data, labels);
+    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDA, data, labels, DEBUG);
     
     %% restore W and b from finetuned opttheta
     %debug
-    opttheta = gatherVector(T, lhidden, size(data, 1));
+    %opttheta = gatherVector(T, lhidden, size(data, 1));
+    
     
     [W, b] = extractParam(opttheta, lhidden, size(data, 1));
     [y, ~, ~] = feedforward(data, W, b);

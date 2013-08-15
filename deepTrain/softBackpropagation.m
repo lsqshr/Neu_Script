@@ -1,4 +1,4 @@
-function [dW, db] = backpropagation(labels, W,...
+function [dW, db] = softBackpropagation(labels, W,...
                      a, hp, BETA, sparsityParam, errfun)
     % The labels here are the initial data in unsupervised machine
 
@@ -18,8 +18,8 @@ function [dW, db] = backpropagation(labels, W,...
         sigPrime = output .* (1 - output);
     end
         
-        
-    errterms{nlayer} = -errfun(labels, output) .* sigPrime;
+    dJ = errfun(labels, output);
+    errterms{nlayer} = -dJ .* sigPrime;
     
     
     % hidden layers
