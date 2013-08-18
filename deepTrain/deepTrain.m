@@ -1,4 +1,4 @@
-function [features, model] = deepTrain(hiddenSize, data, LAMBDA, BETA, sparsityParam, DEBUG)
+function [features, model] = deepTrain(hiddenSize, data, LAMBDA, BETA, sparsityParam, DEBUG, MEMORYSAVE)
     
 
 	% lhidden: the list of number of each hidden layer units
@@ -12,7 +12,7 @@ function [features, model] = deepTrain(hiddenSize, data, LAMBDA, BETA, sparsityP
     addpath ../softmax/;
 
 	model = bioSparseTrain(hiddenSize, data, ...
-        sparsityParam, LAMBDA, BETA, 400, DEBUG, false);
+        sparsityParam, LAMBDA, BETA, 400, DEBUG, false, MEMORYSAVE);
 
 	% train softmax parameters using the features from the last unsupervised layer
 	disp 'start to train the softmax using a{n - 1}'

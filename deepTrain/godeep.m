@@ -1,4 +1,4 @@
-function godeep(lhidden, datasetName, numData)
+function godeep(lhidden, datasetName, numData, MEMORYSAVE)
     LAMBDA = 3e-3;
     LAMBDASM = 1e-4;
     BETA = 3;
@@ -32,7 +32,7 @@ function godeep(lhidden, datasetName, numData)
     
     for i = 1 : length(lhidden)
         model = bioSparseTrain(lhidden(i), features, ...
-                               sparsityParam, LAMBDA, BETA, MAXITER, DEBUG, false);
+                               sparsityParam, LAMBDA, BETA, MAXITER, DEBUG, false, MEMORYSAVE);
         [W, b] = extractParam(model.theta, lhidden(i), size(features, 1));
 	
         [features, ~, ~] = feedforward(features, W, b);
