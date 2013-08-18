@@ -19,6 +19,11 @@ function godeep(lhidden, datasetName, numData)
 		labels = labels(1: numData);
 		labels(labels==0) = 10; % Remap 0 to 10
 		numClasses = 10;
+    elseif strcmp(datasetName, 'Hangyu')
+        [~, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
+        hangyu = load('../dataset/hangyu');
+        data = hangyu.Y;
+        numClasses = 4;
     end
 
     %% train autoencoders

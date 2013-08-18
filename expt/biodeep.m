@@ -1,6 +1,6 @@
 clear;
-lhiddenlist = {[600 500] [700 500] [700 600] [800 700]};
+lhiddenlist = {[1200 1200] [1100 1100]};
 %lhiddenlist = {[2] [2] [2] [2]};
-for i = 1 : numel(lhiddenlist)
+parfor i = 1 : numel(lhiddenlist)
     godeep(lhiddenlist{i},'bio',0);
 end
