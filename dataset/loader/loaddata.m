@@ -28,6 +28,19 @@ function [M, labels] = loaddata(path, featureName)
 		M = [M  data.CCV];
 	end
 
+	if any(strfind(featureName, 'MeanIndex'))
+		M = [M  data.MeanIndex];
+	end
+
+	if any(strfind(featureName, 'FisherIndex'))
+		M = [M  data.FisherIndex];
+    end
+
+    if any(strfind(featureName, 'CMRGLC'))
+		M = [M  data.CMRGLC];
+    end
+        
+
 	M = sigmoid(M');
 
 	labels = data.labels;

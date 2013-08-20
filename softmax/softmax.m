@@ -9,7 +9,15 @@ function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxMode
     ndata = size(inputData, 2);
     numClasses = softmaxModel.numClasses;
     % split a subset of input data as test data
-    idx = randperm(ndata);
+    %idx = randperm(ndata);
+    idx = 1 : ndata;
+    
+    % split the data into 10 segments by moding
+    seg = cell(1,10);
+    for i = 1 : nfold
+        seg{i} = idx(rem(idx, nfold) == i - 1);
+    end
+        
     sumacc = 0;
     for i = 1 : nfold
         segsize = round(ndata / nfold);
@@ -17,11 +25,7 @@ function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxMode
 
         % when 1 fold, we just train without spliting the data
         if nfold ~= 1
-            if i == nfold
-                testidx = idx((i - 1) * segsize + 1 : end);
-            else
-                testidx = idx((i - 1) * segsize + 1 : i * segsize);
-            end
+            testidx = seg{i};
             testData = inputData(:, testidx);
             testLabels = labels(testidx);
             trainidx = setdiff(idx, testidx);

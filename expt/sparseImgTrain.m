@@ -4,7 +4,7 @@
 %  change the parameters below.
 clear all;
 addpath ../sparseAutoencoder/
-patchsize = 8
+patchsize = 8;
 visibleSize = patchsize * patchsize;   % number of input units 
 hiddenSize = 25;     % number of hidden units 
 sparsityParam = 0.05;   % desired average activation of the hidden units.
@@ -31,7 +31,7 @@ theta = initializeParameters(hiddenSize, visibleSize);
 %%======================================================================
 %% STEP 2: Implement sparseAutoencoderCost
 
-[cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
+[~, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
                                      sparsityParam, BETA, patches);
 
 %%======================================================================

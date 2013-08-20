@@ -1,15 +1,26 @@
-function godeep(lhidden, datasetName, numData, MEMORYSAVE)
-    LAMBDA = 3e-3;
-    LAMBDASM = 1e-4;
-    BETA = 3;
-    sparsityParam = 0.1;
-    DEBUG = false;	
-    MAXITER = 400;
-    
+function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE)
+% lhidden : array of the number of neurons in each hidden layer
+% datasetName : indicate which dataset to load. 
+        % there are currently 3 options :  1. bio : the raw preprocessed feature set extracted from 3D brain images;
+                                         % 2. Hangyu : further preprocessed feature set extracted from 'bio' with lower dimensions
+                                         % 3. MNIST : hand writting standard dataset for testing the learner. The proper implementation should achieve an higher accuracy than approximately 96%.
+                                                      % This implementation can achieve almost 100%
+% numData : only work for DEBUGING(MNIST dataset)
+% LAMBDA : the forgetting parameter(weight decay)
+% BETA : the weight for sparsity term. controls the number of 0s in the representation
+% sparsityParam : the target of sparsity. It should be a real number closed to 0. Normally we set it to 0.05
+% MAXITER : maximum number of iterations for the optimizer(B-LFG). 
+% DEBUG: when this flag is turned on, this function will evaluate the derivatives of backpropagation of both sparse autoencoder and fine-tune stage,
+%        by compare the computed gradients and approximate numerical gradient. The correct difference should be lower than Xe-9.
+%        This implementation can fulfil thhis requirement
+% MEMORYSAVE : When this flag is turned on, the activations obtained from feedforward will not be stored and passed to backpropagation.
+%              Instead, in the backpropagation stage, the activations of each layer will be calculated again.
+%              This flag will slightly optimize the memory effciency, and slow down the whole learning progress.
+
     %% load data
     if strcmp(datasetName, 'bio')
 		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
+		[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC']);
 		numClasses = 4;
 	elseif strcmp(datasetName, 'MNIST')
 		addpath ../dataset/MNIST
@@ -24,6 +35,8 @@ function godeep(lhidden, datasetName, numData, MEMORYSAVE)
         hangyu = load('../dataset/hangyu');
         data = hangyu.Y;
         numClasses = 4;
+    else
+        error('Not known dataset name.');
     end
 
     %% train autoencoders

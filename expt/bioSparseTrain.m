@@ -31,7 +31,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, M
   %%======================================================================
   %% STEP 2: Implement sparseAutoencoderCost
 
-  [cost, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
+  [~, grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, lambda, ...
                                        sparsityParam, BETA, data, MEMORYSAVE);
 
   %%======================================================================
@@ -74,7 +74,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, M
   %options.display = 'on';
 
 
-  [opttheta, cost] = minFunc( @(p) sparseAutoencoderCost(p, ...
+  [opttheta, ~] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                      visibleSize, hiddenSize, ...
                                      lambda, sparsityParam, ...
                                      BETA, data, MEMORYSAVE), ...
@@ -104,6 +104,3 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, M
 
 end
 
-function sigm = sigmoid(x)
-      sigm = 1 ./ (1 + exp(-x));
-end
