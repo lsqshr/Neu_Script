@@ -1,4 +1,4 @@
-function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE)
+function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE, SAVEPARAM)
 % lhidden : array of the number of neurons in each hidden layer
 % datasetName : indicate which dataset to load. 
         % there are currently 3 options :  1. bio : the raw preprocessed feature set extracted from 3D brain images;
@@ -9,18 +9,37 @@ function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXI
 % LAMBDA : the forgetting parameter(weight decay)
 % BETA : the weight for sparsity term. controls the number of 0s in the representation
 % sparsityParam : the target of sparsity. It should be a real number closed to 0. Normally we set it to 0.05
-% MAXITER : maximum number of iterations for the optimizer(B-LFG). 
+% MAXITER : maximum number of iterations for the optimizer(L-BFG). 
 % DEBUG: when this flag is turned on, this function will evaluate the derivatives of backpropagation of both sparse autoencoder and fine-tune stage,
 %        by compare the computed gradients and approximate numerical gradient. The correct difference should be lower than Xe-9.
 %        This implementation can fulfil thhis requirement
 % MEMORYSAVE : When this flag is turned on, the activations obtained from feedforward will not be stored and passed to backpropagation.
 %              Instead, in the backpropagation stage, the activations of each layer will be calculated again.
 %              This flag will slightly optimize the memory effciency, and slow down the whole learning progress.
+% SAVEPARAM : NOT IMPLEMENTED*****When this flag is turned on, the parameters will be saved,
+%             since we are using L-BFG which is a stochastic process, not guarenteeing
+%             the final optimization is the best fit. You can save the
+%             optimized parameters and compare the results. Then reuse them
+%             for learning by loading the parameters produces the best result in cross-folding validation.
+%             
+%             
 
     %% load data
     if strcmp(datasetName, 'bio')
 		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC']);
+		[data, labels] = loaddata('../dataset/biodata.mat', features);
+		numClasses = 4;
+    elseif strcmp(datasetName, 'bio758')
+		addpath ../dataset/loader;
+		[data, labels] = loaddata('../dataset/biodata758.mat', features);
+		numClasses = 4;
+    elseif strcmp(datasetName, 'bioold')
+		addpath ../dataset/loader;
+		[data, labels] = loaddata('../dataset/biodata(old).mat', features);
+		numClasses = 4;
+    elseif strcmp(datasetName, 'gold331')
+		addpath ../dataset/loader;
+		[data, labels] = loaddata('../dataset/gold331.mat', features);
 		numClasses = 4;
 	elseif strcmp(datasetName, 'MNIST')
 		addpath ../dataset/MNIST
@@ -55,12 +74,12 @@ function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXI
     
     %% train the softmax model
     softmaxModel.numClasses = numClasses;
-    [~, softmaxModel] = softmax(1, model, LAMBDASM, labels, softmaxModel, false);
+    [~, ~, ~, ~, ~, softmaxModel] = softmax(1, model, LAMBDASM, MAXITER, labels, softmaxModel, false);
     
     DEBUG = false;
     
     %% finetune
-    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, data, labels, DEBUG);
+    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, MAXITER, data, labels, DEBUG);
     
     %% restore W and b from finetuned opttheta
     lenSoftTheta = numel(softmaxModel.optTheta);
@@ -74,8 +93,8 @@ function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXI
     model.hiddenFeatures = y;
     
     %% evaluate the result using 10 fold
-    acc = softmax(10, model, LAMBDASM, labels, softmaxModel, true); 
-    
+    [acc, classacc, classf1score, sumperf, lperf, ~] = softmax(10, model, LAMBDASM, MAXITER, labels, softmaxModel, true); 
+
     disp(lhidden);
     disp([BETA,LAMBDA, sparsityParam]);
     %% store the current achievement
@@ -89,6 +108,10 @@ function godeep(lhidden, datasetName, numData, LAMBDA, BETA, sparsityParam, MAXI
     result{8} = lhidden;
     result{9} = clock;
     result{10} = size(data);
+    result{11} = classacc;
+    result{12} = classf1score;
+    result{13} = sumperf;
+    result{14} = lperf;
     
     %% append the result to the existed list
     if exist('../dataset/results/results.mat', 'file') == 2

@@ -1,12 +1,16 @@
-function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxModel, trained)
-    addpath ../softmax/
-    addpath ../dataset/
+function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(nfold, model, lambda, MAXITER, labels, softmaxModel, trained)
+    addpath ../softmax/;
+    addpath ../dataset/;
     %load biodata;
 
     %split data and labels for testing
+    
     inputData = model.hiddenFeatures;
     inputSize = size(inputData, 1); % Size of input vector 
     ndata = size(inputData, 2);
+    
+    %% find out which labels are going to be classified this time
+    labelNums  = unique(labels);
     numClasses = softmaxModel.numClasses;
     % split a subset of input data as test data
     %idx = randperm(ndata);
@@ -14,11 +18,32 @@ function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxMode
     
     % split the data into 10 segments by moding
     seg = cell(1,10);
-    for i = 1 : nfold
-        seg{i} = idx(rem(idx, nfold) == i - 1);
+    
+    start = 1;
+    %% randomly permute the instances of each labels
+    for i  = 1 : numClasses
+       if i == numClasses
+           nextstart = length(idx);
+       else
+           nextstart = find(labels == labelNums(i + 1), 1 , 'first');
+       end
+       idx(start : nextstart - 1) = randperm(nextstart - start) + start - 1;
+       start = nextstart;
     end
-        
+    
+    for i = 1 : nfold
+        i_idx = 1 : length(idx);
+        i_idx = i_idx(rem(i_idx, nfold) == i - 1);
+        seg{i} = idx(i_idx);
+    end
+    
+    % sum of fold accuracy
     sumacc = 0;
+    classf1score = 0;
+    lperf = cell(nfold, 1);
+    % sum of confusion matrix
+    sumconf = 0;
+    sumperf = [0, 0, 0];
     for i = 1 : nfold
         segsize = round(ndata / nfold);
         % grab the indices of test data and training data
@@ -80,7 +105,7 @@ function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxMode
         %% STEP 4: Learning parameters
 
         if ~trained
-            options.maxIter = 400;
+            options.maxIter = MAXITER;
             disp({'training using ', size(trainData, 2) , ' instances'});
             softmaxModel = softmaxTrain(inputSize, numClasses, lambda, ...
                                         trainData, trainLabels, options);
@@ -102,14 +127,47 @@ function [acc, softmaxModel] = softmax(nfold, model, lambda, labels, softmaxMode
         acc = mean(testLabels(:) == pred(:));
         fprintf('Accuracy: %0.3f%%\n', acc * 100);
         sumacc = sumacc + acc;
+        
+        % add up the confusion matrix
+        sumconf = sumconf + confusionmat(testLabels(:), pred(:));
+        
+        perf = classperf(testLabels(:), pred(:));
+        sumperf = sumperf + [perf.CorrectRate, perf.Sensitivity, perf.Specificity];
+        
+        lperf{i} = perf;
     end
 
     if nfold ~= 1
         disp({nfold  'fold accuracy:'});
         acc = sumacc / nfold;
         disp(acc);
+        
+        % compute the averaged confusion matrix and get the presicion of
+        % each class
+        
+        conf = sumconf ./ nfold;
+        classrecall = (diag(conf) ./ sum(conf, 2))';
+        classacc = diag(conf)' ./ sum(conf, 1);
+        classacc(isnan(classacc)) = 0;
+        classf1score = 2 * classacc .* classrecall ./ (classacc + classrecall);
+        totalf1score = mean(classf1score);
+        
+        disp('confmat:');
+        disp(conf);
+        disp('accuracy for each class:');
+        disp(classacc);
+        disp('recall for each class:');
+        disp(classrecall);
+        disp('f1 score for each class:');
+        disp(classf1score);
+        disp('total f1score:');
+        
+        sumperf = sumperf ./ nfold;
+        disp('classification performance: ')
+        disp(sumperf);
     else
         acc = 0;
+        classacc = 0;
     end
 
 end
