@@ -41,6 +41,14 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
 		addpath ../dataset/loader;
 		[data, labels] = loaddata('../dataset/gold331.mat', features);
 		numClasses = 4;
+    elseif strcmp(datasetName, 'super331')
+		addpath ../dataset/loader;
+		[data, labels] = loaddata('../dataset/super331.mat', features);
+		numClasses = 4;
+    elseif strcmp(datasetName, 'new758')
+        addpath ../dataset/loader;
+        [data, labels] = loaddata('../dataset/new758.mat', features);
+        numClasses = 4;
 	elseif strcmp(datasetName, 'MNIST')
 		addpath ../dataset/MNIST
 		data = loadMNISTImages('train-images.idx3-ubyte');
@@ -49,11 +57,14 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
 		labels = labels(1: numData);
 		labels(labels==0) = 10; % Remap 0 to 10
 		numClasses = 10;
-    elseif strcmp(datasetName, 'Hangyu')
-        [~, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
-        hangyu = load('../dataset/hangyu');
-        data = hangyu.Y;
-        numClasses = 4;
+    elseif strcmp(datasetName, 'NCAD')
+        addpath ../dataset/loader;
+        [data, labels] = loaddata('../dataset/NCAD.mat', features);
+        numClasses = 2;
+    elseif strcmp(datasetName, 'NCMCI')
+        addpath ../dataset/loader;
+        [data, labels] = loaddata('../dataset/NCMCI.mat', features);
+        numClasses = 2;
     else
         error('Not known dataset name.');
     end
@@ -88,6 +99,9 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
     theta = opttheta(lenSoftTheta + 1 : end);
 	[W, b] = extractParam(theta, lhidden, size(data, 1));
     
+    % save W for visualization
+    %save('W.mat', 'W');
+    
     [y, ~, ~] = feedforward(data, W, b);
     
     model.hiddenFeatures = y;
@@ -114,18 +128,18 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
     result{14} = lperf;
     
     %% append the result to the existed list
-    if exist('../dataset/results/results.mat', 'file') == 2
-        results = load('../dataset/results/results.mat');
-        results = results.results;
-        idx = results{end};
-        idx = idx + 1;
-        results{idx} = result;
-        results{end} = idx;
-        save('../dataset/results/results.mat', 'results');
-    else
-        results = cell(10000, 1);
-        results{1} = result;
-        results{end} = 1;
-        save('../dataset/results/results.mat', 'results');
-    end
+%     if exist('../dataset/results/results.mat', 'file') == 2
+%         results = load('../dataset/results/results.mat');
+%         results = results.results;
+%         idx = results{end};
+%         idx = idx + 1;
+%         results{idx} = result;
+%         results{end} = idx;
+%         save('../dataset/results/results.mat', 'results');
+%     else
+%         results = cell(10000, 1);
+%         results{1} = result;
+%         results{end} = 1;
+%         save('../dataset/results/results.mat', 'results');
+%     end
 end

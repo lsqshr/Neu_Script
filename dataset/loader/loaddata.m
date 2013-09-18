@@ -1,45 +1,12 @@
-function [M, labels] = loaddata(path, featureName)
+function [M, labels] = loaddata(path, features)
 	addpath ..;
 	load(path);
 
 	M = [];
-
-	if any(strfind(featureName, 'VOLUME'))
-		M = data.VOLUME;
-	end
-
-	if any(strfind(featureName, 'CONVEXITY'))
-		M = [M  data.VOLUME];
-	end
-
-	if any(strfind(featureName, 'WAVELET'))
-		M = [M  data.WAVELET];
-	end
-
-	if any(strfind(featureName, 'CMRGLC'))
-		M = [M  data.CMRGLC];
-	end
-
-	if any(strfind(featureName, 'SOLIDITY'))
-		M = [M  data.SOLIDITY];
-	end
-
-	if any(strfind(featureName, 'CCV'))
-		M = [M  data.CCV];
-	end
-
-	if any(strfind(featureName, 'MeanIndex'))
-		M = [M  data.MeanIndex];
-	end
-
-	if any(strfind(featureName, 'FisherIndex'))
-		M = [M  data.FisherIndex];
+    
+    for i = 1 : length(features)
+        M = [M data.(features{i})];
     end
-
-    if any(strfind(featureName, 'CMRGLC'))
-		M = [M  data.CMRGLC];
-    end
-        
 
 	M = sigmoid(M');
 
