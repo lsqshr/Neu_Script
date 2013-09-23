@@ -3,6 +3,8 @@
 clear;
 addpath ../deepTrain;
 
+lossmode = 'squared';
+
 hiddenSize = 8;
 LAMBDA = 9.5e-7;
 LAMBDASM = 4.5e-5;
@@ -11,7 +13,7 @@ sparsityParam = 1e-5;
 DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
-datapath = '../dataset/NCAD331.mat';
+datapath = '../dataset/super331.mat';
 
 % * the best feature combination: plus PET
 % features = ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC'];
@@ -24,7 +26,7 @@ features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 [data, labels] = loaddata(datapath, features);
 
  acc = godeep( [hiddenSize hiddenSize], data, labels,...
-          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, lossmode);
 
 %% grid tune hidden unites by logarithm domain
 % alist = [];

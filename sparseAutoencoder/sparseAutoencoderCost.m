@@ -1,35 +1,36 @@
-function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
-                                             LAMBDA, sparsityParam, BETA, data, memorySave)
+function [cost,grad] = sparseAutoencoderCost(theta,data, options)
 
-	W{1} = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
-	W{2} = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
-	b{1} = theta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
-	b{2} = theta(2*hiddenSize*visibleSize+hiddenSize+1:end);
+	W{1} = reshape(theta(1:options.hiddenSize*options.visibleSize),...
+        options.hiddenSize, options.visibleSize);
+	W{2} = reshape(theta(options.hiddenSize*options.visibleSize+1:2*options.hiddenSize*options.visibleSize),...
+        options.visibleSize, options.hiddenSize);
+	b{1} = theta(2*options.hiddenSize*options.visibleSize+1:2*options.hiddenSize*options.visibleSize+options.hiddenSize);
+	b{2} = theta(2*options.hiddenSize*options.visibleSize+options.hiddenSize+1:end);
 
 	ndata = size(data, 2);
 	nlayer = length(W) + 1;
 
-
-	if memorySave == true
-		[cost, ~, hp] = preFeedforward(W, b, data, LAMBDA, sparsityParam, ...
-									   BETA, data, @feedforward, @distance, false, true);
-	    [dW, db] = memorySaveBackpropagation(data, W, b, hp, BETA, sparsityParam, ...
-							       @(labels, hypothesis)outputLayerCost(labels, hypothesis));
-	else
-		% for the unsupervised neural network(sparse) we need to
-		% feedforward all the data before the backpropagation
-		[cost, a, hp] = preFeedforward(W, b, data, LAMBDA, sparsityParam, ...
-									   BETA, data, @feedforward, @distance, false, true);
-	    % use backpropagation to get two partial derivatives
-	    [dW, db] = backpropagation(data, W, a, hp, BETA, sparsityParam, ...
-							       @(labels, hypothesis)outputLayerCost(labels, hypothesis));
-	end
+    if options.memorySave == true
+        [cost, ~, hp] = preFeedforward(W, b, data, options.LAMBDA, options.sparsityParam, ...
+            options.BETA, data, @feedforward, options.lossFunc, false, true);
+        [dW, db] = options.memorySaveBackpropagation(data, W, b, hp, options.BETA, options.sparsityParam, ...
+            @(labels, hypothesis)outputLayerCost(labels, hypothesis));
+    else
+        % for the unsupervised neural network(sparse) we need to
+        % feedforward all the data before the backpropagation
+        [cost, a, hp] = preFeedforward(W, b, data, options.LAMBDA, options.sparsityParam, ...
+            options.BETA, data, @feedforward, options.lossFunc, false, true);
+        
+        % use backpropagation to get two partial derivatives
+        [dW, db] = backpropagation(data, W, a, hp, options.BETA, options.sparsityParam, ...
+            @(labels, hypothesis)outputLayerCost(labels, hypothesis));
+    end
 
 	Wgrads = cell(1, nlayer - 1);
 	bgrads = cell(1, nlayer - 1);
 
 	for l = 1 : nlayer - 1
-	    Wgrads{l} = dW{l} / ndata + (LAMBDA * W{l}) ; % the paritial derivative of W
+	    Wgrads{l} = dW{l} / ndata + (options.LAMBDA * W{l}) ; % the paritial derivative of W
 	    bgrads{l} = db{l} / ndata;
 	end
 

@@ -1,6 +1,6 @@
 function [cost, grad] = finetune(theta, softmaxModel,...
 								 lhidden, LAMBDASM, LAMBDA,...
-								 data, labels)
+								 data, labels, lossmode)
     LAMBDA = 0; % try not using LAMBDA
 	addpath ../sparseAutoencoder/;
     % split the softTheta from the long one
@@ -13,11 +13,17 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 	ndata = size(data, 2);
 	nlayer = length(W) + 1;
 
+    if lossmode == 'squared'
+        lossFunc = @squaredError;
+    else
+        lossFunc = @crossEntropy;
+    end
+    
 	% for the unsupervised neural network(sparse) we need to
 	% feedforward all the data before the backpropagatlion
 	[~, a, hp] = deepPreFeedforward(W, b, data,...
 									 0, 0, ...
-									 0, labels, softmaxModel);
+									 0, labels, softmaxModel, lossFunc);
 
     % use backpropagation to get two partial derivatives
     [dW, db] = softBackpropagation(labels', W, a,...
@@ -39,7 +45,6 @@ function [cost, grad] = finetune(theta, softmaxModel,...
     end
     
     %% calc the gradient of softTheta
-    %[cost, gradSoft] = softmaxCost(softmaxModel.optTheta, softmaxModel.numClasses, size(a{nlayer}, 1), LAMBDA, a{nlayer}, labels);
     M = size(data, 2);
     groundTruth = full(sparse(labels, 1:M, 1));
     cost = -1/ndata * sum(groundTruth(:) .* log(a{nlayer + 1}(:))) + LAMBDASM/2 * sum(softmaxModel.optTheta(:) .^ 2);

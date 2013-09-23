@@ -1,4 +1,4 @@
-function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, MAXITER, data, labels, DEBUG)
+function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, MAXITER, data, labels, DEBUG, lossmode)
 	%% gather all the relevant theta into a vector
 	opttheta = gatherVector(T, lhidden, size(data, 1));
     opttheta = [softmaxModel.optTheta(:); opttheta];
@@ -31,6 +31,6 @@ function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, MAX
 	options.Method = 'lbfgs'; 
 	options.maxIter = MAXITER;	  % Maximum number of iterations of L-BFGS to run 
 	[opttheta, ~] = minFunc( @(x) finetune(x, softmaxModel, ...
-							lhidden, LAMBDASM, LAMBDA, data, labels), ...
+							lhidden, LAMBDASM, LAMBDA, data, labels, lossmode), ...
 		                    opttheta, options);
 end
