@@ -1,4 +1,4 @@
-function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, MAXITER, DEBUG, VISUAL)
+function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, MAXITER, DEBUG, VISUAL, MEMORYSAVE)
   %%======================================================================
   %% STEP 0: Here we provide the relevant parameters values that will
   %  allow your sparse autoencoder to get good filters; you do not need to 
@@ -42,7 +42,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, lambda, BETA, M
   % for the sparse autoencoder.  
   numgrad = computeNumericalGradient( @(x) sparseAutoencoderCost(x, visibleSize, hiddenSize, lambda, ...
                                                     sparsityParam, BETA, ...
-                                                     data), theta);
+                                                     data, MEMORYSAVE), theta);
 d = abs(numgrad - grad);
   for i = 1 : length(numgrad)
     if d(i) > 0.01
@@ -86,7 +86,7 @@ d = abs(numgrad - grad);
   [opttheta, ~] = minFunc( @(p) sparseAutoencoderCost(p, ...
                                      visibleSize, hiddenSize, ...
                                      lambda, sparsityParam, ...
-                                     BETA, data), ...
+                                     BETA, data, MEMORYSAVE), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance
@@ -96,8 +96,6 @@ d = abs(numgrad - grad);
   model.theta = opttheta;
   model.hiddenSize = hiddenSize;
   model.visibleSize = visibleSize;
-
-%  save('../dataset/model.mat', 'model');
 
 
   %%======================================================================
