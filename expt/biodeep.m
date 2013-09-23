@@ -3,7 +3,7 @@
 clear;
 addpath ../deepTrain;
 
-lossmode = 'squared';
+lossmode = 'crossentropy';
 
 hiddenSize = 8;
 LAMBDA = 9.5e-7;
@@ -25,9 +25,19 @@ features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 % load data and labels
 [data, labels] = loaddata(datapath, features);
 
+sq = 0;
+sc = 0;
+for i = 1: 5
  acc = godeep( [hiddenSize hiddenSize], data, labels,...
-          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, lossmode);
+          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'squared');
+ sq = sq + acc;
+ acc = godeep( [hiddenSize hiddenSize], data, labels,...
+          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'crossentropy');
+ sc = sc + acc;
+end
 
+disp(['sq:',sq/5,'sc:',sc/5]);     
+      
 %% grid tune hidden unites by logarithm domain
 % alist = [];
 % 

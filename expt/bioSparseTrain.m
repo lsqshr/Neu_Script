@@ -70,18 +70,19 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, LAMBDA, BETA, M
   encoderoptions.BETA          = BETA;
   encoderoptions.memorySave    = MEMORYSAVE;
   
-  if LOSSMODE == 'squared'
+  if strcmp( 'squared', LOSSMODE)
     encoderoptions.lossFunc    = @squaredError;
   else
     encoderoptions.lossFunc    = @crossEntropy;
   end
   
   % start optimization
-  [opttheta, ~] = minFunc( @(p) sparseAutoencoderCost(p, data, encoderoptions), ...
+  minFunc( @(p) sparseAutoencoderCost(p, data, encoderoptions), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance
   features = hiddenFeatures(theta, hiddenSize, visibleSize, data, LAMBDA, BETA);
+  
   % store a{2} and theta
   model.hiddenFeatures = features;
   model.theta = theta;

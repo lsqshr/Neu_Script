@@ -1,6 +1,6 @@
 function [cost, grad] = finetune(theta, softmaxModel,...
 								 lhidden, LAMBDASM, LAMBDA,...
-								 data, labels, lossmode)
+								 data, labels, LOSSMODE)
     LAMBDA = 0; % try not using LAMBDA
 	addpath ../sparseAutoencoder/;
     % split the softTheta from the long one
@@ -13,7 +13,7 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 	ndata = size(data, 2);
 	nlayer = length(W) + 1;
 
-    if lossmode == 'squared'
+    if strcmp('squared', LOSSMODE)
         lossFunc = @squaredError;
     else
         lossFunc = @crossEntropy;
