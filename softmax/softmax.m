@@ -44,8 +44,8 @@ function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(n
     % sum of confusion matrix
     sumconf = 0;
     sumperf = [0, 0, 0];
+    
     for i = 1 : nfold
-        segsize = round(ndata / nfold);
         % grab the indices of test data and training data
 
         % when 1 fold, we just train without spliting the data
@@ -66,42 +66,7 @@ function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(n
 
 
         DEBUG = false; % Set DEBUG to true when debugging.
-        if DEBUG
-            inputSize = 8;
-            inputData = randn(8, 100);
-            labels = randi(10, 100, 1);
-        end
-
-        if DEBUG
-        %%======================================================================
-        %% STEP 2: Implement softmaxCost
-        %
-        %  Implement softmaxCost in softmaxCost.m. 
-        [cost, grad] = softmaxCost(theta, numClasses, inputSize, lambda, inputData, labels);
-
-        %%======================================================================
-        %% STEP 3: Gradient checking
-        %
-        %  As with any learning algorithm, you should always check that your
-        %  gradients are correct before learning the parameters.
-        % 
-
-            addpath ../sparseAutoencoder
-            numGrad = computeNumericalGradient( @(x) softmaxCost(x, numClasses, ...
-                                            inputSize, lambda, trainData, trainLabels), theta);
-
-            % Use this to visually compare the gradients side by side
-            disp([numGrad grad]); 
-
-            % Compare numerically computed gradients with those computed analytically
-            diff = norm(numGrad-grad)/norm(numGrad+grad);
-            disp(diff); 
-            % The difference should be small. 
-            % In our implementation, these values are usually less than 1e-7.
-
-            % When your gradients are correct, congratulations!
-        end
-        %%======================================================================
+              
         %% STEP 4: Learning parameters
 
         if ~trained

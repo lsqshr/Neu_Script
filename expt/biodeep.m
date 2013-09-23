@@ -3,24 +3,28 @@
 clear;
 addpath ../deepTrain;
 
-hiddenSize = 11;
-LAMBDA = 4.9733e-7;
-LAMBDASM = 2.6157e-5;
-BETA = 11;
-sparsityParam = 0.3644;
+hiddenSize = 8;
+LAMBDA = 9.5e-7;
+LAMBDASM = 4.5e-5;
+BETA = 13.92;
+sparsityParam = 1e-5;
 DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
-dataset = 'NCAD';
+datapath = '../dataset/NCAD331.mat';
 
-% * the best feature combination:
+% * the best feature combination: plus PET
 % features = ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC'];
 
 % ISBI feature set
-features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+%features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 
-acc = godeep( [hiddenSize hiddenSize], dataset, features, 0,...
-     LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+% load data and labels
+[data, labels] = loaddata(datapath, features);
+
+ acc = godeep( [hiddenSize hiddenSize], data, labels,...
+          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
 
 %% grid tune hidden unites by logarithm domain
 % alist = [];
@@ -32,40 +36,16 @@ acc = godeep( [hiddenSize hiddenSize], dataset, features, 0,...
 % trials = round(generateTrials(domain, numTrials));
 % for i = 1 : numTrials
 %     rSize = round(hiddenSize);
-%     acc = godeep( [ trials(i) trials(i)], dataset, features,...
-%         0, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%     acc = godeep( [ trials(i) trials(i)], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
 %     alist = [alist; trials(i) acc];
 %     curlist(i) = acc;
 % end
 % 
-% % plot and save to file
+% plot and save to file
 % l = sortrows(alist, 1);
 % f = plot(l(:, 1), l(:, 2));
-% fname = strcat('hiddenSize', strrep(timestr,':','-'), '.png');
-% saveas(f, fname);
 
-
-%% grid tune hidden unites by linear step size
-% alist = [];
-% for hiddenSize = 63 : 66
-%     acc = godeep( [ hiddenSize hiddenSize], 'super331', features, 0, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
-%     alist = [alist; hiddenSize acc];
-% end
-% 
-% %% plot and save to file
-% f = plot(alist(:, 1), alist(:, 2));
-% saveas(f, 'hiddenSizePlot.png');
-
-%% see what result can be produced by 65
-% alist = [];
-% for i = 1 : 10
-%     acc = godeep( [65 65], 'super331', features, 0, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
-%     alist = [alist; acc];
-% end
-
-% %% plot and save to file
-% f = plot(alist(:));
-% saveas(f, 'hiddenSizePlot.png');
 
 %% grid tune BETA
 % alist = [];
@@ -76,16 +56,15 @@ acc = godeep( [hiddenSize hiddenSize], dataset, features, 0,...
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
-%     acc = godeep( [hiddenSize hiddenSize ], dataset, features,...
-%         0, LAMBDA, LAMBDASM, trials(i), sparsityParam, MAXITER, DEBUG, false);
-%     alist = [alist; trials(i) acc];
+%    BETA = trials(i);
+%    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%    alist = [alist; trials(i) acc];
 % end
 % 
 % % plot and save to file
 % l = sortrows(alist, 1);
-% f = plot(l(:, 1), l(:, 2));
-% fname = strcat('beta', strrep(timestr,':','-'), '.png');
-% saveas(f, fname);
+% plot(l(:, 1), l(:, 2));
 
 %% grid tune LAMBDA using logarithm domain
 % alist = [];
@@ -96,55 +75,54 @@ acc = godeep( [hiddenSize hiddenSize], dataset, features, 0,...
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
-%     acc = godeep( [ hiddenSize hiddenSize ], dataset, features,...
-%         0, trials(i), LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%     LAMBDA = trials(i);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
 %     alist = [alist; trials(i) acc];
 % end
 % 
 % % plot and save to file
 % l = sortrows(alist, 1);
-% f = plot(l(:, 1), l(:, 2));
-% fname = strcat('lambda', strrep(timestr,':','-'), '.png');
-% saveas(f, fname);
+% plot(l(:, 1), l(:, 2));
+
 
 %% grid tune sparsityParam
 % alist = [];
 % 
-% domain.start = 0.36;
-% domain.end = 0.37;
-% numTrials = 50;
+% domain.start = 1e-6;
+% domain.end = 1e-5;
+% numTrials = 10;
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
-%     acc = godeep( [ hiddenSize hiddenSize ], dataset, features,...
-%         0, LAMBDA, LAMBDASM, BETA, trials(i), MAXITER, DEBUG, false);
+%     sparsityParam = trials(i);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
 %     alist = [alist; trials(i) acc];
 % end
 % 
 % % plot and save to file
 % l = sortrows(alist, 1);
-% f = plot(l(:, 1), l(:, 2));
-% fname = strcat('lambdasm', strrep(timestr,':','-'), '.png');
-% saveas(f, fname);
+% plot(l(:, 1), l(:, 2));
 
-%% MAXITER
 
 %% LAMBDASM
 % alist = [];
 % 
-% domain.start = 1e-5;
+% domain.start = 1e-6;
 % domain.end = 1e-4;
-% numTrials = 50;
+% numTrials = 10;
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
-%     acc = godeep( [ hiddenSize hiddenSize ], dataset, features,...
-%         0, LAMBDA, trials(i), BETA, sparsityParam, MAXITER, DEBUG, false);
+%     LAMBDASM = trials(i);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
 %     alist = [alist; trials(i) acc];
 % end
 % 
 % % plot and save to file
 % l = sortrows(alist, 1);
-% f = plot(l(:, 1), l(:, 2));
-% fname = strcat('lambdasm', strrep(timestr,':','-'), '.png');
-% saveas(f, fname);
+% plot(l(:, 1), l(:, 2));
+
+beep;

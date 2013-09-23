@@ -1,4 +1,4 @@
-function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE, SAVEPARAM)
+function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE)
 % lhidden : array of the number of neurons in each hidden layer
 % datasetName : indicate which dataset to load. 
         % there are currently 3 options :  1. bio : the raw preprocessed feature set extracted from 3D brain images;
@@ -21,54 +21,10 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
 %             the final optimization is the best fit. You can save the
 %             optimized parameters and compare the results. Then reuse them
 %             for learning by loading the parameters produces the best result in cross-folding validation.
-%             
-%             
 
-    %% load data
-    if strcmp(datasetName, 'bio')
-		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/biodata.mat', features);
-		numClasses = 4;
-    elseif strcmp(datasetName, 'bio758')
-		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/biodata758.mat', features);
-		numClasses = 4;
-    elseif strcmp(datasetName, 'bioold')
-		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/biodata(old).mat', features);
-		numClasses = 4;
-    elseif strcmp(datasetName, 'gold331')
-		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/gold331.mat', features);
-		numClasses = 4;
-    elseif strcmp(datasetName, 'super331')
-		addpath ../dataset/loader;
-		[data, labels] = loaddata('../dataset/super331.mat', features);
-		numClasses = 4;
-    elseif strcmp(datasetName, 'new758')
-        addpath ../dataset/loader;
-        [data, labels] = loaddata('../dataset/new758.mat', features);
-        numClasses = 4;
-	elseif strcmp(datasetName, 'MNIST')
-		addpath ../dataset/MNIST
-		data = loadMNISTImages('train-images.idx3-ubyte');
-		labels = loadMNISTLabels('train-labels.idx1-ubyte');
-		data = data(:,1 : numData);
-		labels = labels(1: numData);
-		labels(labels==0) = 10; % Remap 0 to 10
-		numClasses = 10;
-    elseif strcmp(datasetName, 'NCAD')
-        addpath ../dataset/loader;
-        [data, labels] = loaddata('../dataset/NCAD.mat', features);
-        numClasses = 2;
-    elseif strcmp(datasetName, 'NCMCI')
-        addpath ../dataset/loader;
-        [data, labels] = loaddata('../dataset/NCMCI.mat', features);
-        numClasses = 2;
-    else
-        error('Not known dataset name.');
-    end
-
+    % get the number of classes
+    numClasses = length(unique(labels));
+             
     %% train autoencoders
     features = data;
     T = cell(size(lhidden), 1);
@@ -112,20 +68,20 @@ function acc = godeep(lhidden, datasetName, features,numData, LAMBDA, LAMBDASM, 
     disp(lhidden);
     disp([BETA,LAMBDA, sparsityParam]);
     %% store the current achievement
-    result{1} = datasetName;
-    result{2} = acc;
-    result{3} = LAMBDA;
-    result{4} = LAMBDASM;
-    result{5} = sparsityParam;
-    result{6} = BETA;
-    result{7} = MAXITER;
-    result{8} = lhidden;
-    result{9} = clock;
-    result{10} = size(data);
-    result{11} = classacc;
-    result{12} = classf1score;
-    result{13} = sumperf;
-    result{14} = lperf;
+%     result{1} = datasetName;
+%     result{2} = acc;
+%     result{3} = LAMBDA;
+%     result{4} = LAMBDASM;
+%     result{5} = sparsityParam;
+%     result{6} = BETA;
+%     result{7} = MAXITER;
+%     result{8} = lhidden;
+%     result{9} = clock;
+%     result{10} = size(data);
+%     result{11} = classacc;
+%     result{12} = classf1score;
+%     result{13} = sumperf;
+%     result{14} = lperf;
     
     %% append the result to the existed list
 %     if exist('../dataset/results/results.mat', 'file') == 2
