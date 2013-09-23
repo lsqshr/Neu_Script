@@ -1,4 +1,4 @@
-function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, MEMORYSAVE, lossmode)
+function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode)
 % lhidden : array of the number of neurons in each hidden layer
 % datasetName : indicate which dataset to load. 
         % there are currently 3 options :  1. bio : the raw preprocessed feature set extracted from 3D brain images;
@@ -31,7 +31,7 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
     
     for i = 1 : length(lhidden)
         model = bioSparseTrain(lhidden(i), features, ...
-                               sparsityParam, LAMBDA, BETA, MAXITER, DEBUG, MEMORYSAVE, lossmode);
+                               sparsityParam, LAMBDA, BETA, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode);
         [W, b] = extractParam(model.theta, lhidden(i), size(features, 1));
 	
         [features, ~, ~] = feedforward(features, W, b);
@@ -46,7 +46,7 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
     DEBUG = false;
     
     %% finetune
-    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, MAXITER, data, labels, DEBUG, lossmode);
+    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, noiseRatio, MAXITER, data, labels, DEBUG, lossmode);
     
     %% restore W and b from finetuned opttheta
     lenSoftTheta = numel(softmaxModel.optTheta);
@@ -63,7 +63,7 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
     model.hiddenFeatures = y;
     
     %% evaluate the result using 10 fold
-    [acc, classacc, classf1score, sumperf, lperf, ~] = softmax(10, model, LAMBDASM, MAXITER, labels, softmaxModel, true); 
+    [acc, ~, ~, ~, ~, ~] = softmax(10, model, LAMBDASM, MAXITER, labels, softmaxModel, true); 
 
     disp(lhidden);
     disp([BETA,LAMBDA, sparsityParam]);

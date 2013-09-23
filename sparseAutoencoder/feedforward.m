@@ -12,7 +12,6 @@ function [y, a, hp] =  feedforward(data, W, b)
     hp = cell(nlayer, 1);
 
     for l = 1 : nlayer - 1
-        %disp([l size(W{l}) size(a{l}) size(b{l})]);
         z{l + 1} = W{l} * a{l} + repmat(b{l}, 1, ndata);
         a{l + 1} = sigmoid(z{l + 1});
     end

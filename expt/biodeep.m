@@ -13,6 +13,7 @@ sparsityParam = 1e-5;
 DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
+noiseRatio = 30;
 datapath = '../dataset/super331.mat';
 
 % * the best feature combination: plus PET
@@ -25,18 +26,19 @@ features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 % load data and labels
 [data, labels] = loaddata(datapath, features);
 
-sq = 0;
-sc = 0;
-for i = 1: 5
- acc = godeep( [hiddenSize hiddenSize], data, labels,...
-          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'squared');
- sq = sq + acc;
- acc = godeep( [hiddenSize hiddenSize], data, labels,...
-          LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'crossentropy');
- sc = sc + acc;
-end
-
-disp(['sq:',sq/5,'sc:',sc/5]);     
+LAMBDA = 0; % try not use weight decay
+% acc = godeep( [hiddenSize hiddenSize], data, labels,...
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, lossmode);
+% sq = 0;
+% sc = 0;
+% for i = 1: 5
+%  acc = godeep( [hiddenSize hiddenSize], data, labels,...
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'squared');
+%  sq = sq + acc;
+%  acc = godeep( [hiddenSize hiddenSize], data, labels,...
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'crossentropy');
+%  sc = sc + acc;
+% end 
       
 %% grid tune hidden unites by logarithm domain
 % alist = [];
@@ -136,5 +138,24 @@ disp(['sq:',sq/5,'sc:',sc/5]);
 % % plot and save to file
 % l = sortrows(alist, 1);
 % plot(l(:, 1), l(:, 2));
+
+%% noiseRatio
+alist = [];
+
+domain.start = 10;
+domain.end = 15;
+numTrials = 10;
+
+trials = generateTrials(domain, numTrials);
+for i = 1 : numTrials
+    noiseRatio = trials(i);
+    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+        LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
+    alist = [alist; trials(i) acc];
+end
+
+% plot and save to file
+l = sortrows(alist, 1);
+plot(l(:, 1), l(:, 2));
 
 beep;
