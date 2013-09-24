@@ -4,7 +4,7 @@ addpath ../sparseAutoencoder
 addpath ../dataset/loader
 
 [data, labels] = loaddata('../dataset/biodata.mat', ['VOLUME', 'SOLIDITY', 'CONVEXITY']);
-upper = 512
+upper = 512;
 lower = 256;
 lacc = zeros(1, upper - lower);
 for hiddenSize = lower : upper 

@@ -1,9 +1,16 @@
-function [dW, db] = backpropagation(labels, W,...
-                     a, hp, BETA, sparsityParam, errfun)
-    % The labels here are the initial data in unsupervised machine
+function [dW, db] = memorySaveBackpropagation( labels, W, b,...
+                     hp, BETA, sparsityParam, errfun )
+    % The memory sufficient version of backpropagation algorithm
+    %   In this implementation, since the memory efficiency is more regarded,
+    %   the activations from feedforward is not stored. Instead, we will do one
+    %   more feedforward again at the beginning of the backpropagation.
 
+     % The labels here are the initial data in unsupervised machine
+    [~, a, ~] = feedforward(labels, W, b); 
+    
     nlayer = length(W) + 1;
     ndata = size(labels, 2);
+    a{nlayer} = a{nlayer};
 
     % calc the error terms
 
@@ -41,5 +48,6 @@ function [dW, db] = backpropagation(labels, W,...
         dW{l} = errterms{l + 1} * a{l}';
         db{l} = sum(errterms{l + 1}, 2);
     end
-
+    
 end
+
