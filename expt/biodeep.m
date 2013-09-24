@@ -5,15 +5,15 @@ addpath ../deepTrain;
 
 lossmode = 'crossentropy';
 
-hiddenSize = 8;
+hiddenSize = 10;
 LAMBDA = 9.5e-7;
-LAMBDASM = 4.5e-5;
-BETA = 13.92;
-sparsityParam = 1e-5;
+LAMBDASM = 1.75e-5;
+BETA = 9;
+sparsityParam = 2.2e-7;
 DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
-noiseRatio = 30;
+noiseRatio = 8;
 datapath = '../dataset/super331.mat';
 
 % * the best feature combination: plus PET
@@ -50,13 +50,12 @@ LAMBDA = 0; % try not use weight decay
 % trials = round(generateTrials(domain, numTrials));
 % for i = 1 : numTrials
 %     rSize = round(hiddenSize);
-%     acc = godeep( [ trials(i) trials(i)], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %     alist = [alist; trials(i) acc];
 %     curlist(i) = acc;
 % end
 % 
-% plot and save to file
 % l = sortrows(alist, 1);
 % f = plot(l(:, 1), l(:, 2));
 
@@ -71,8 +70,8 @@ LAMBDA = 0; % try not use weight decay
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
 %    BETA = trials(i);
-%    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %    alist = [alist; trials(i) acc];
 % end
 % 
@@ -83,15 +82,15 @@ LAMBDA = 0; % try not use weight decay
 %% grid tune LAMBDA using logarithm domain
 % alist = [];
 % 
-% domain.start = 1e-7;
-% domain.end = 1e-6;
+% domain.start = 4e-3;
+% domain.end = 5e-3;
 % numTrials = 10;
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
 %     LAMBDA = trials(i);
 %     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %     alist = [alist; trials(i) acc];
 % end
 % 
@@ -103,7 +102,7 @@ LAMBDA = 0; % try not use weight decay
 %% grid tune sparsityParam
 % alist = [];
 % 
-% domain.start = 1e-6;
+% domain.start = 1e-7;
 % domain.end = 1e-5;
 % numTrials = 10;
 % 
@@ -111,7 +110,7 @@ LAMBDA = 0; % try not use weight decay
 % for i = 1 : numTrials
 %     sparsityParam = trials(i);
 %     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %     alist = [alist; trials(i) acc];
 % end
 % 
@@ -131,7 +130,7 @@ LAMBDA = 0; % try not use weight decay
 % for i = 1 : numTrials
 %     LAMBDASM = trials(i);
 %     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false);
+%          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %     alist = [alist; trials(i) acc];
 % end
 % 
@@ -140,22 +139,22 @@ LAMBDA = 0; % try not use weight decay
 % plot(l(:, 1), l(:, 2));
 
 %% noiseRatio
-alist = [];
-
-domain.start = 10;
-domain.end = 15;
-numTrials = 10;
-
-trials = generateTrials(domain, numTrials);
-for i = 1 : numTrials
-    noiseRatio = trials(i);
-    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-        LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
-    alist = [alist; trials(i) acc];
-end
-
-% plot and save to file
-l = sortrows(alist, 1);
-plot(l(:, 1), l(:, 2));
+% alist = [];
+% 
+% domain.start = 5;
+% domain.end = 15;
+% numTrials = 20;
+% 
+% trials = generateTrials(domain, numTrials);
+% for i = 1 : numTrials
+%     noiseRatio = trials(i);
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
+%     alist = [alist; trials(i) acc];
+% end
+% 
+% % plot and save to file
+% l = sortrows(alist, 1);
+% plot(l(:, 1), l(:, 2));
 
 beep;
