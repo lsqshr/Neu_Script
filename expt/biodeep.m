@@ -3,49 +3,49 @@
 clear;
 addpath ../deepTrain;
 
-lossmode = 'cross';
+lossmode = 'crossentropy';
 
-hiddenSize = 800;
+hiddenSize = 10;
 LAMBDA = 9.5e-7;
-LAMBDASM = 1.24e-5;
-BETA = 4.44;
-sparsityParam = 3.1e-6;
+LAMBDASM = 1.75e-5;
+BETA = 9;
+sparsityParam = 2.2e-7;
 DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
-noiseRatio = 18.39;
-datapath = '../dataset/new758.mat';
+noiseRatio = 8;
+datapath = '../dataset/super331.mat';
 
 % * the best feature combination: plus PET
 % features = ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC'];
 
 % ISBI feature set
-features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
-% features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
+%features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 
 % load data and labels
 [data, labels] = loaddata(datapath, features);
 
 LAMBDA = 0; % try not use weight decay
-acc = godeep( [1000 hiddenSize hiddenSize ], data, labels,...
-          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, lossmode);
+% acc = godeep( [hiddenSize hiddenSize], data, labels,...
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, lossmode);
 % sq = 0;
 % sc = 0;
 % for i = 1: 5
 %  acc = godeep( [hiddenSize hiddenSize], data, labels,...
-%            LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, 'squared');
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'squared');
 %  sq = sq + acc;
 %  acc = godeep( [hiddenSize hiddenSize], data, labels,...
-%            LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, 'cross');
+%           LAMBDA, LAMBDASM, BETA, sparsityParam, MAXITER, DEBUG, false, 'crossentropy');
 %  sc = sc + acc;
 % end 
       
 %% grid tune hidden unites by logarithm domain
 % alist = [];
 % 
-% domain.start = 10;
-% domain.end = 400;
-% numTrials = 50;
+% domain.start = 6;
+% domain.end = 15;
+% numTrials = 10;
 % 
 % trials = round(generateTrials(domain, numTrials));
 % for i = 1 : numTrials
@@ -63,14 +63,14 @@ acc = godeep( [1000 hiddenSize hiddenSize ], data, labels,...
 %% grid tune BETA
 % alist = [];
 % 
-% domain.start = 2;
+% domain.start = 3;
 % domain.end = 15;
 % numTrials = 10;
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
 %    BETA = trials(i);
-%     acc = godeep( [ 1000 hiddenSize hiddenSize], data, labels,...
+%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
 %         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
 %    alist = [alist; trials(i) acc];
 % end
@@ -124,7 +124,7 @@ acc = godeep( [1000 hiddenSize hiddenSize ], data, labels,...
 % 
 % domain.start = 1e-6;
 % domain.end = 1e-4;
-% numTrials = 20;
+% numTrials = 10;
 % 
 % trials = generateTrials(domain, numTrials);
 % for i = 1 : numTrials
@@ -142,7 +142,7 @@ acc = godeep( [1000 hiddenSize hiddenSize ], data, labels,...
 % alist = [];
 % 
 % domain.start = 5;
-% domain.end = 20;
+% domain.end = 15;
 % numTrials = 20;
 % 
 % trials = generateTrials(domain, numTrials);
