@@ -26,7 +26,7 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
     numClasses = length(unique(labels));
              
     %% train autoencoders
-    features = data;
+    features = gpuArray(data); %transfer data to gpu
     T = cell(size(lhidden), 1);
     
     for i = 1 : length(lhidden)
