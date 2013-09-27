@@ -21,7 +21,7 @@ datapath = '../dataset/super331.mat';
 
 % ISBI feature set
 features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
-%features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
+% features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 
 % load data and labels
 [data, labels] = loaddata(datapath, features);
