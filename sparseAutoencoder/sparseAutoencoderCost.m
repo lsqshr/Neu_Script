@@ -1,4 +1,4 @@
-function [cost,grad] = sparseAutoencoderCost(theta,data, options)
+function [cost,grad] = sparseAutoencoderCost(theta, autoencodertype, data, options)
 
 	W{1} = reshape(theta(1:options.hiddenSize*options.visibleSize),...
         options.hiddenSize, options.visibleSize);
@@ -11,14 +11,14 @@ function [cost,grad] = sparseAutoencoderCost(theta,data, options)
 	nlayer = length(W) + 1;
 
     if options.memorySave == true
-        [cost, ~, hp] = preFeedforward(W, b, data, options.LAMBDA, options.sparsityParam, ...
+        [cost, ~, hp] = preFeedforward(W, b, autoencodertype, data, options.LAMBDA, options.sparsityParam, ...
             options.BETA, options.noiseRatio, data, @feedforward, options.lossFunc, false, true);
         [dW, db] = options.memorySaveBackpropagation(data, W, b, hp, options.BETA, options.sparsityParam, ...
             @(labels, hypothesis)outputLayerCost(labels, hypothesis));
     else
         % for the unsupervised neural network(sparse) we need to
         % feedforward all the data before the backpropagation
-        [cost, a, hp] = preFeedforward(W, b, data, options.LAMBDA, options.sparsityParam, ...
+        [cost, a, hp] = preFeedforward(W, b, autoencodertype, data, options.LAMBDA, options.sparsityParam, ...
             options.BETA, options.noiseRatio, data, @feedforward, options.lossFunc, false, true);
         
         % use backpropagation to get two partial derivatives

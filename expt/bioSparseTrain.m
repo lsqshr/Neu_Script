@@ -1,4 +1,4 @@
-function model = bioSparseTrain(hiddenSize, data, sparsityParam, LAMBDA, BETA, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, LOSSMODE)
+function model = bioSparseTrain(hiddenSize, autoencodertype, data, sparsityParam, LAMBDA, BETA, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, LOSSMODE)
   %%======================================================================
   %% STEP 0: Here we provide the relevant parameters values that will
   %  allow your sparse autoencoder to get good filters; you do not need to 
@@ -54,7 +54,7 @@ function model = bioSparseTrain(hiddenSize, data, sparsityParam, LAMBDA, BETA, n
   end
   
   % start optimization
-  minFunc( @(p) sparseAutoencoderCost(p, data, encoderoptions), ...
+  minFunc( @(p) sparseAutoencoderCost(p, autoencodertype, data, encoderoptions), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance

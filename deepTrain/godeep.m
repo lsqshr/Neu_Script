@@ -1,4 +1,4 @@
-function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode)
+function acc = godeep(lhidden, autoencodertype, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode)
 % lhidden : array of the number of neurons in each hidden layer
 % datasetName : indicate which dataset to load. 
         % there are currently 3 options :  1. bio : the raw preprocessed feature set extracted from 3D brain images;
@@ -30,7 +30,7 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
     T = cell(size(lhidden), 1);
     
     for i = 1 : length(lhidden)
-        model = bioSparseTrain(lhidden(i), features, ...
+        model = bioSparseTrain(lhidden(i), autoencodertype, features, ...
                                sparsityParam, LAMBDA, BETA, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode);
         [W, b] = extractParam(model.theta, lhidden(i), size(features, 1));
 	
@@ -67,35 +67,4 @@ function acc = godeep(lhidden, data, labels, LAMBDA, LAMBDASM, BETA, sparsityPar
 
     disp(lhidden);
     disp([BETA,LAMBDA, sparsityParam]);
-    %% store the current achievement
-%     result{1} = datasetName;
-%     result{2} = acc;
-%     result{3} = LAMBDA;
-%     result{4} = LAMBDASM;
-%     result{5} = sparsityParam;
-%     result{6} = BETA;
-%     result{7} = MAXITER;
-%     result{8} = lhidden;
-%     result{9} = clock;
-%     result{10} = size(data);
-%     result{11} = classacc;
-%     result{12} = classf1score;
-%     result{13} = sumperf;
-%     result{14} = lperf;
-    
-    %% append the result to the existed list
-%     if exist('../dataset/results/results.mat', 'file') == 2
-%         results = load('../dataset/results/results.mat');
-%         results = results.results;
-%         idx = results{end};
-%         idx = idx + 1;
-%         results{idx} = result;
-%         results{end} = idx;
-%         save('../dataset/results/results.mat', 'results');
-%     else
-%         results = cell(10000, 1);
-%         results{1} = result;
-%         results{end} = 1;
-%         save('../dataset/results/results.mat', 'results');
-%     end
 end

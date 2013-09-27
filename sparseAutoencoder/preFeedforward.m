@@ -1,6 +1,6 @@
 % feedforward through all tyhe data to compute the average
 % activations and gives out the current SEC
-function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, noiseRatio,...
+function [cost, a, hp] = preFeedforward(W, b, autoencodertype, data, LAMBDA, p, BETA, noiseRatio,...
     labels, feedfun, costfun, ignoreBETA, compuCost)
     %% do feedforward on all of the data and get the cost
     nlayer = length(W) + 1;
@@ -8,12 +8,12 @@ function [cost, a, hp] = preFeedforward(W, b, data, LAMBDA, p, BETA, noiseRatio,
 
     %% feedforward m data by vectorization
     % add denoising criterion
-    corruptedData = awgn(data, noiseRatio, 'measured');
-    [y, a, hp]    = feedfun(corruptedData, W, b);
+    if strcmp(autoencodertype, 'denoising')
+        data = awgn(data, noiseRatio, 'measured');
+    end
+    [y, a, hp] = feedfun(data, W, b);
 
     %% compute J(W,b)
-    % disp(size(labels));
-    % disp(size(y));
     if compuCost
         cost = costfun(labels, y);
 

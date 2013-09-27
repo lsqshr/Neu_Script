@@ -3,9 +3,9 @@
 clear;
 addpath ../deepTrain;
 
-lossmode = 'crossentropy';
+lossmode = 'squared';
 
-hiddenSize = 10;
+hiddenSize = 8;
 LAMBDA = 9.5e-7;
 LAMBDASM = 1.75e-5;
 BETA = 9;
@@ -14,21 +14,24 @@ DEBUG = false;
 MAXITER = 400;
 timestr = datestr(clock);
 noiseRatio = 8;
-datapath = '../dataset/super331.mat';
+autoencodertype = 'traditional';
+datapath = '../dataset/new758.mat';
+if strcmp(autoencodertype, 'denoising')
+    LAMBDA = 0;
+end
 
 % * the best feature combination: plus PET
 % features = ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC'];
 
 % ISBI feature set
-%features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
-features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
+features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+%features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 
 % load data and labels
 [data, labels] = loaddata(datapath, features);
 
-LAMBDA = 0; % try not use weight decay
-% acc = godeep( [hiddenSize hiddenSize], data, labels,...
-%           LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, lossmode);
+acc = godeep( [hiddenSize hiddenSize], autoencodertype, data, labels,...
+           LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio,MAXITER, DEBUG, false, lossmode);
 % sq = 0;
 % sc = 0;
 % for i = 1: 5
@@ -61,23 +64,23 @@ LAMBDA = 0; % try not use weight decay
 
 
 %% grid tune BETA
-% alist = [];
-% 
-% domain.start = 3;
-% domain.end = 15;
-% numTrials = 10;
-% 
-% trials = generateTrials(domain, numTrials);
-% for i = 1 : numTrials
-%    BETA = trials(i);
-%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
-%    alist = [alist; trials(i) acc];
-% end
-% 
-% % plot and save to file
-% l = sortrows(alist, 1);
-% plot(l(:, 1), l(:, 2));
+alist = [];
+
+domain.start = 3;
+domain.end = 15;
+numTrials = 10;
+
+trials = generateTrials(domain, numTrials);
+for i = 1 : numTrials
+   BETA = trials(i);
+    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+        LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
+   alist = [alist; trials(i) acc];
+end
+
+% plot and save to file
+l = sortrows(alist, 1);
+plot(l(:, 1), l(:, 2));
 
 %% grid tune LAMBDA using logarithm domain
 % alist = [];
