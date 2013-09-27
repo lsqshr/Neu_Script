@@ -20,8 +20,8 @@ datapath = '../dataset/super331.mat';
 % features = ['VOLUME', 'SOLIDITY', 'CONVEXITY', 'MeanIndex', 'FisherIndex', 'CMRGLC'];
 
 % ISBI feature set
-%features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
-features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
+features = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+%features = {'CONVEXITY','VOLUME', 'SOLIDITY'};
 
 % load data and labels
 [data, labels] = loaddata(datapath, features);
@@ -61,23 +61,23 @@ LAMBDA = 0; % try not use weight decay
 
 
 %% grid tune BETA
-% alist = [];
-% 
-% domain.start = 3;
-% domain.end = 15;
-% numTrials = 10;
-% 
-% trials = generateTrials(domain, numTrials);
-% for i = 1 : numTrials
-%    BETA = trials(i);
-%     acc = godeep( [ hiddenSize hiddenSize], data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
-%    alist = [alist; trials(i) acc];
-% end
-% 
-% % plot and save to file
-% l = sortrows(alist, 1);
-% plot(l(:, 1), l(:, 2));
+alist = [];
+
+domain.start = 3;
+domain.end = 15;
+numTrials = 20;
+
+trials = generateTrials(domain, numTrials);
+for i = 1 : numTrials
+   BETA = trials(i);
+    acc = godeep( [ hiddenSize hiddenSize], data, labels,...
+        LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode);
+   alist = [alist; trials(i) acc];
+end
+
+% plot and save to file
+l = sortrows(alist, 1);
+plot(l(:, 1), l(:, 2));
 
 %% grid tune LAMBDA using logarithm domain
 % alist = [];
