@@ -56,15 +56,15 @@ function model = bioSparseTrain(hiddenSize, autoencodertype, data, sparsityParam
   end
   
   % start optimization
-  minFunc( @(p) sparseAutoencoderCost(p, autoencodertype, data, encoderoptions), ...
+  [opttheta, ~] = minFunc( @(p) sparseAutoencoderCost(p, autoencodertype, data, encoderoptions), ...
                                 theta, options);
 
   % use the current cost to run feedforward on every instance
-  features = hiddenFeatures(theta, hiddenSize, visibleSize, data, LAMBDA, BETA);
+  features = hiddenFeatures(opttheta, hiddenSize, visibleSize, data);
   
   % store a{2} and theta
   model.hiddenFeatures = features;
-  model.theta = theta;
+  model.theta = opttheta;
   model.hiddenSize = hiddenSize;
   model.visibleSize = visibleSize;
 

@@ -1,4 +1,4 @@
-function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, noiseRatio, MAXITER, data, labels, DEBUG, lossmode)
+function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, noiseRatio, MAXITER, data, labels, DEBUG, lossmode)
 	%% gather all the relevant theta into a vector
 	opttheta = gatherVector(T, lhidden, size(data, 1));
     opttheta = [softmaxModel.optTheta(:); opttheta];
@@ -11,9 +11,9 @@ function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, noi
         % check your cost function and derivative calculations
         % for the sparse autoencoder.
         [~, grad] = finetune(opttheta, softmaxModel, ...
-							lhidden, LAMBDASM, LAMBDA, MAXITER, data, labels);
+							lhidden, LAMBDASM, MAXITER, data, labels);
         numgrad = computeNumericalGradient( @(x) finetune(x, softmaxModel, ...
-							lhidden, LAMBDASM, LAMBDA, data, labels), opttheta);
+							lhidden, LAMBDASM, data, labels), opttheta);
         
         % compare side by side
         disp([numgrad grad]);
@@ -31,6 +31,6 @@ function [opttheta] = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, noi
 	options.Method = 'lbfgs'; 
 	options.maxIter = MAXITER;	  % Maximum number of iterations of L-BFGS to run 
 	[opttheta, ~] = minFunc( @(x) finetune(x, softmaxModel, ...
-							lhidden, LAMBDASM, LAMBDA, noiseRatio, data, labels, lossmode), ...
+							lhidden, LAMBDASM, noiseRatio, data, labels, lossmode), ...
 		                    opttheta, options);
 end

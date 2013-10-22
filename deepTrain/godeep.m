@@ -1,4 +1,4 @@
-function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep(lhidden, autoencodertype, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode)
+function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep(lhidden, autoencodertype, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, MEMORYSAVE, lossmode,validation)
 % lhidden       : array of the number of neurons in each hidden layer
 % data          : The preloaded data in matrix
 % labels        : The preloaded labels in matrix
@@ -22,7 +22,7 @@ function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep(lh
     % get the number of classes
     numClasses = length(unique(labels));
              
-    %% train autoencoders
+    %% train autoencoders (unsupervised learning)
     features = data;
     T = cell(size(lhidden), 1);
     
@@ -36,34 +36,7 @@ function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep(lh
         model.hiddenFeatures = features;
     end
     
-    
-    
-    %% train the softmax model
-    softmaxModel.numClasses = numClasses;
-    [~, ~, ~, ~, ~, softmaxModel] = softmax(1, model, LAMBDASM, MAXITER, labels, softmaxModel, false);
-    
-    DEBUG = false;
-    
-    %% finetune
-    opttheta = gofinetune(T, softmaxModel, lhidden, LAMBDASM, LAMBDA, noiseRatio, MAXITER, data, labels, DEBUG, lossmode);
-    
-    %% restore W and b from finetuned opttheta
-    lenSoftTheta = numel(softmaxModel.optTheta);
-    softTheta = opttheta(1 : lenSoftTheta);
-    softmaxModel.optTheta = reshape(softTheta, softmaxModel.numClasses, lhidden(end));
-    theta = opttheta(lenSoftTheta + 1 : end);
-	[W, b] = extractParam(theta, lhidden, size(data, 1));
-    
-    % save W for visualization
-    save('W.mat', 'W');
-    
-    [y, ~, ~] = feedforward(data, W, b);
-    
-    model.hiddenFeatures = y;
-    
-    %% evaluate the result using 10 fold
-    [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(10, model, LAMBDASM, MAXITER, labels,...
-                                                                      softmaxModel, true);    
-    disp(lhidden);
-    disp([BETA,LAMBDA, sparsityParam]);
+    %% start supervised learning
+    [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = supervised(10, T, ...
+                                     numClasses, lhidden, model, LAMBDASM, noiseRatio, MAXITER, labels, lossmode, validation);
 end

@@ -23,9 +23,3 @@ function [y, a, hp] =  feedforward(data, W, b)
 
      y = a{nlayer};
 end
-
-
-function sigm = sigmoid(x)
-    sigm = 1 ./ (1 + exp(-x));
-end
-
