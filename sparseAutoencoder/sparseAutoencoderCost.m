@@ -22,7 +22,12 @@ function [cost,grad] = sparseAutoencoderCost(theta, autoencodertype, data, optio
             options.BETA, options.noiseRatio, data, @feedforward, options.lossFunc, false, true);
         
         % use backpropagation to get two partial derivatives
-        [dW, db] = backpropagation(data, W, a, hp, options.BETA, options.sparsityParam, ...
+        if strcmp(func2str(options.lossFunc), 'crossEntropy')
+            lossmode = 'cross';
+        else
+            lossmode = 'squared';
+        end
+        [dW, db] = backpropagation(data, W, lossmode, a, hp, options.BETA, options.sparsityParam, ...
             @(labels, hypothesis)outputLayerCost(labels, hypothesis));
     end
 

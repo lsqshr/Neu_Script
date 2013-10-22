@@ -47,10 +47,12 @@ function model = bioSparseTrain(hiddenSize, autoencodertype, data, sparsityParam
   encoderoptions.memorySave    = MEMORYSAVE;
   encoderoptions.noiseRatio    = noiseRatio;
   
-  if strcmp( 'squared', LOSSMODE)
+  if strcmp( 'square', LOSSMODE)
     encoderoptions.lossFunc    = @squaredError;
-  else
+  elseif strcmp('cross', LOSSMODE)
     encoderoptions.lossFunc    = @crossEntropy;
+  else
+    assert(1~=1,'The lossmode is not known. Need square or cross');
   end
   
   % start optimization

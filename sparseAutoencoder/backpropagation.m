@@ -1,4 +1,4 @@
-function [dW, db] = backpropagation(labels, W,...
+function [dW, db] = backpropagation(labels, W, lossmode,...
                      a, hp, BETA, sparsityParam, errfun)
     % The labels here are the initial data in unsupervised machine
 
@@ -9,12 +9,17 @@ function [dW, db] = backpropagation(labels, W,...
 
     % first layer
     errterms = cell(nlayer, 1);
+    
     if BETA == 0
         output = a{nlayer + 1};
         sigPrime = a{nlayer} .* (1 - a{nlayer});
     else
         output = a{nlayer};
         sigPrime = output .* (1 - output);
+    end
+    
+    if strcmp(lossmode, 'cross')
+        sigPrime = 1;
     end
         
         
