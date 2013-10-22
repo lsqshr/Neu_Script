@@ -1,10 +1,5 @@
 function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(nfold, model, lambda, MAXITER, labels, softmaxModel, trained)
-    addpath ../softmax/;
-    addpath ../dataset/;
-    %load biodata;
-
     %split data and labels for testing
-    
     inputData = model.hiddenFeatures;
     inputSize = size(inputData, 1); % Size of input vector 
     ndata = size(inputData, 2);
@@ -74,13 +69,8 @@ function [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = softmax(n
             disp({'training using ', size(trainData, 2) , ' instances'});
             softmaxModel = softmaxTrain(inputSize, numClasses, lambda, ...
                                         trainData, trainLabels, options);
-        end                
+        end
         
-        % Although we only use 100 iterations here to train a classifier for the 
-        % MNIST data set, in practice, training for more iterations is usually
-        % beneficial.
-
-        %%======================================================================
         %% STEP 5: Testing
 
         if nfold == 1

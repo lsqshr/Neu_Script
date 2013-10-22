@@ -2,8 +2,7 @@ function [cost, grad] = finetune(theta, softmaxModel,...
 								 lhidden, LAMBDASM, LAMBDA, noiseRatio,...
 								 data, labels, LOSSMODE)
     LAMBDA = 0; % try not using LAMBDA
-	addpath ../sparseAutoencoder/;
-    % split the softTheta from the long one
+	% split the softTheta from the long one
     softTheta = theta(1 : numel(softmaxModel.optTheta));
     softmaxModel.optTheta = reshape(softTheta, softmaxModel.numClasses, lhidden(end));
     

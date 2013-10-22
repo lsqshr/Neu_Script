@@ -5,14 +5,17 @@ function [M, labels] = loaddata(path, features)
 	M = [];
     
     for i = 1 : length(features)
-        M = [M data.(features{i})];
+        f = data.(features{i});
+        switch(features{i})
+            case {'CURVATURE', 'CONVEXITY', 'LGI'}
+                f = f ./ max(f(:));
+            case 'ShapeIndex'
+                f = f - min(f(:));
+                f = f ./ max(f(:));                                
+        end
+        M = [M f];
     end
 
-	M = sigmoid(M');
-
+    M = M';
 	labels = data.labels;
-end
-
-function sigm = sigmoid(x)
-      sigm = 1 ./ (1 + exp(-x));
 end
