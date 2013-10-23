@@ -1,22 +1,21 @@
 % script to autotune the deep learning archietecture using the autotune
 % tool I wrote
 % author: Siqi
-addpath ../deepTrain;
 clear;
 %% preset parameters
 
 hiddenSize      = 50;
-LAMBDA          = 1.8e-4;
-LAMBDASM        = 3e-6;
-BETA            = 8;
-sparsityParam   = 0.1;
+LAMBDA          = 3e-3;
+LAMBDASM        = 5e-2;
+BETA            = 2;
+sparsityParam   = 0.05;
 DEBUG           = false;
 MAXITER         = 400;
 timestr         = datestr(clock);
 noiseRatio      = 8;
 autoencodertype = 'traditional';
 lossmode        = 'square';
-datapath        = 'NCAD384.mat';
+datapath        = 'new758.mat';
 features        = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
 %features        = {'VOLUME'};
 validation      = true;
@@ -26,41 +25,38 @@ end
 
 [data, labels] = loaddata(datapath, features);
 
-godeep( [ hiddenSize hiddenSize hiddenSize],  autoencodertype, data, labels,...
+godeep( [ hiddenSize hiddenSize],  autoencodertype, data, labels,...
          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation);
+
+options.nsample = 6;
+options.depth   = 2;
+
+%% Tune hiddenSize
+% domain.start    = 150;
+% domain.end      = 800;
 % 
-% %% Tune hiddenSize
-% domain.start    = 1;
-% domain.end      = 30;
-% options.nsample = 10;
-% options.depth   = 4;
 % options.round   = true;
 % [para, acc] = singletune(@(hiddenSize)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode), domain, options);
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation), domain, options);
 % 
 % hiddenSize = para;
 % 
 % % Tune LAMBDA
 % domain.start    = 1e-7;
 % domain.end      = 3e-5;
-% options.nsample = 10;
-% options.depth   = 3;
 % options.round   = false;
 % [para, acc] = singletune(@(LAMBDA)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode), domain, options);
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation), domain, options);
 % 
 % disp(['tuned LAMBDA : ', para, 'acc:', acc]);
 % LAMBDA = para;
 % 
-% % Tune LAMBDASM
+% Tune LAMBDASM
 % 
-% domain.start    = 1e-7;
-% domain.end      = 3e-5;
-% options.nsample = 10;
-% options.depth   = 3;
+% domain.start    = 1e-3;
+% domain.end      = 3e-1;
 % options.round   = false;
-% [para, acc] = singletune(@(LAMBDASM)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode), domain, options);
+% [para, acc] = singletune(@(LAMBDASM)godeep( [hiddenSize hiddenSize], autoencodertype, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode,validation), domain, options);
 % 
 % disp(['tuned LAMBDASM : ', para, 'acc:', acc]);
 % LAMBDASM = para;
@@ -69,11 +65,9 @@ godeep( [ hiddenSize hiddenSize hiddenSize],  autoencodertype, data, labels,...
 % 
 % domain.start    = 1;
 % domain.end      = 10;
-% options.nsample = 10;
-% options.depth   = 3;
 % options.round   = false;
 % [para, acc] = singletune(@(BETA)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode), domain, options);
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation), domain, options);
 % 
 % disp(['tuned BETA : ', para, 'acc:', acc]);
 % BETA = para;
@@ -82,11 +76,9 @@ godeep( [ hiddenSize hiddenSize hiddenSize],  autoencodertype, data, labels,...
 % 
 % domain.start    = 1e-4;
 % domain.end      = 5e-1;
-% options.nsample = 10;
-% options.depth   = 3;
 % options.round   = false;
 % [para, acc] = singletune(@(sparsityParam)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
-%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode), domain, options);
+%         LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation), domain, options);
 % 
 % disp(['tuned sparsityParam : ', para, 'acc:', acc]);
 % sparsityParam = para;
@@ -96,7 +88,7 @@ godeep( [ hiddenSize hiddenSize hiddenSize],  autoencodertype, data, labels,...
 %     [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep( [ hiddenSize hiddenSize ],...
 %                                                                           autoencodertype, data, labels,...
 %                                                                           LAMBDA, LAMBDASM, BETA, sparsityParam,...
-%                                                                           noiseRatio, MAXITER, DEBUG, false, lossmode);
+%                                                                           noiseRatio, MAXITER, DEBUG, false, lossmode, validation);
 %     perf.acc(i)    = sumperf(1);
 %     perf.sen(i)    = sumperf(2);
 %     perf.spe(i)    = sumperf(3);
