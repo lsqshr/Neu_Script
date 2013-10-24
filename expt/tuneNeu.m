@@ -4,10 +4,10 @@
 clear;
 %% preset parameters
 
-hiddenSize      = 50;
-LAMBDA          = 3e-3;
-LAMBDASM        = 5e-2;
-BETA            = 2;
+hiddenSize      = 200;
+LAMBDA          = 2.7e-6;
+LAMBDASM        = 3e-5;
+BETA            = 8;
 sparsityParam   = 0.05;
 DEBUG           = false;
 MAXITER         = 400;
@@ -16,7 +16,7 @@ noiseRatio      = 8;
 autoencodertype = 'traditional';
 lossmode        = 'square';
 datapath        = 'new758.mat';
-features        = {'CONVEXITY','VOLUME', 'SOLIDITY','CURVATURE', 'ShapeIndex', 'LGI'};
+features        = {'CONVEXITY','VOLUME', 'LGI', 'CURVATURE', 'ShapeIndex', 'SOLIDITY'};
 %features        = {'VOLUME'};
 validation      = true;
 if strcmp(autoencodertype, 'denoising')
@@ -24,6 +24,12 @@ if strcmp(autoencodertype, 'denoising')
 end
 
 [data, labels] = loaddata(datapath, features);
+load elastic
+pvalue = elasticresult.b(:, elasticresult.fitinfo.IndexMinMSE);
+idx    = find(pvalue ~= 0);
+data   = data(idx, :);
+% labels = labels(idx);
+
 
 godeep( [ hiddenSize hiddenSize],  autoencodertype, data, labels,...
          LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode, validation);
@@ -31,9 +37,9 @@ godeep( [ hiddenSize hiddenSize],  autoencodertype, data, labels,...
 options.nsample = 6;
 options.depth   = 2;
 
-%% Tune hiddenSize
-% domain.start    = 150;
-% domain.end      = 800;
+% % Tune hiddenSize
+% domain.start    = 30;
+% domain.end      = 100;
 % 
 % options.round   = true;
 % [para, acc] = singletune(@(hiddenSize)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
@@ -50,11 +56,11 @@ options.depth   = 2;
 % 
 % disp(['tuned LAMBDA : ', para, 'acc:', acc]);
 % LAMBDA = para;
+
+%Tune LAMBDASM
 % 
-% Tune LAMBDASM
-% 
-% domain.start    = 1e-3;
-% domain.end      = 3e-1;
+% domain.start    = 1e-7;
+% domain.end      = 3e-2;
 % options.round   = false;
 % [para, acc] = singletune(@(LAMBDASM)godeep( [hiddenSize hiddenSize], autoencodertype, data, labels, LAMBDA, LAMBDASM, BETA, sparsityParam, noiseRatio, MAXITER, DEBUG, false, lossmode,validation), domain, options);
 % 
@@ -63,7 +69,7 @@ options.depth   = 2;
 % 
 % %% Tune BETA
 % 
-% domain.start    = 1;
+% domain.start    = 0.5;
 % domain.end      = 10;
 % options.round   = false;
 % [para, acc] = singletune(@(BETA)godeep( [ hiddenSize hiddenSize ],  autoencodertype, data, labels,...
@@ -71,8 +77,8 @@ options.depth   = 2;
 % 
 % disp(['tuned BETA : ', para, 'acc:', acc]);
 % BETA = para;
-% 
-% %% Tune sparsityParam
+
+% % Tune sparsityParam
 % 
 % domain.start    = 1e-4;
 % domain.end      = 5e-1;
@@ -82,8 +88,8 @@ options.depth   = 2;
 % 
 % disp(['tuned sparsityParam : ', para, 'acc:', acc]);
 % sparsityParam = para;
-% 
-% %% final evaluation using 10 trials
+
+%% final evaluation using 10 trials
 % for i = 1 : 10
 %     [acc, classacc, classf1score, sumperf, lperf, softmaxModel] = godeep( [ hiddenSize hiddenSize ],...
 %                                                                           autoencodertype, data, labels,...
@@ -119,7 +125,7 @@ options.depth   = 2;
 % disp(LAMBDASM);
 % disp('*********************************');
 % disp 'final perf:';
-% 
+
 % for i = 1 : numel(fn)
 %     name = strcat(fn{i}, 'mean');
 %     disp(strcat(name, ':'));

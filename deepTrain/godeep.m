@@ -21,14 +21,14 @@ function [totalf1score, acc, classacc, classf1score, sumperf, lperf, softmaxMode
     nfold = 10;
 
     % get the number of classes
-    numClasses = length(unique(labels));
+    labelNums = unique(labels);
+    numClasses = length(labelNums);
     
     %%data partition
     %split data and labels for testing
     ndata = size(data, 2);
 
     %% find out which labels are going to be classified this time
-    labelNums = unique(labels);
     % split a subset of input data as test data
     %idx = randperm(ndata);
     idx = 1 : ndata;
@@ -76,7 +76,9 @@ function [totalf1score, acc, classacc, classf1score, sumperf, lperf, softmaxMode
         assert(size(testData, 2) == size(testLabels, 1));
         
         %% train autoencoders (unsupervised learning)
-        features = trainData;
+        tridx    = randperm(size(trainData, 2));
+        features = trainData(:, tridx);
+        labels   = trainLabels(tridx);
         T = cell(size(lhidden), 1);
 
         for j = 1 : length(lhidden)

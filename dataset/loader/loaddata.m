@@ -15,9 +15,9 @@ function [M, labels] = loaddata(path, features)
     stdm = std(M,0, 2);
     M    = (M - repmat(m,1,size(M,2))) ./ repmat(stdm,1, size(M,2));
     % rescaling
-%     M    = M - min(M(:));
-%     M    = M ./ max(M(:));
-    M    = sigmoid(M);
+    M    = M - min(M(:));
+    M    = M ./ max(M(:));
+%     M    = sigmoid(M);
 
 	labels = data.labels;
 end
